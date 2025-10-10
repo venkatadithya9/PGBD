@@ -185,7 +185,8 @@ def test_combat(
     total_clean_correct = 0
     total_bd_correct = 0
 
-    gauss_smooth = tfs.GaussianBlur(kernel_size=opt.kernel_size, sigma=opt.sigma)
+    gauss_smooth = tfs.GaussianBlur(
+        kernel_size=opt.kernel_size, sigma=opt.sigma)
 
     torch.nn.BCELoss()
     for batch_idx, (inputs, targets, _) in enumerate(test_dl):
@@ -196,7 +197,8 @@ def test_combat(
             preds_clean = netC(inputs)
 
             total_clean_sample += len(inputs)
-            total_clean_correct += torch.sum(torch.argmax(preds_clean, 1) == targets)
+            total_clean_correct += torch.sum(
+                torch.argmax(preds_clean, 1) == targets)
 
             # Evaluate Backdoor
             ntrg_ind = (targets != opt.target_label).nonzero()[:, 0]
@@ -204,13 +206,15 @@ def test_combat(
             targets_toChange = targets[ntrg_ind]
             noise_bd = netG(inputs_toChange)
             noise_bd = low_freq(noise_bd, opt)
-            inputs_bd = torch.clamp(inputs_toChange + noise_bd * opt.noise_rate, -1, 1)
+            inputs_bd = torch.clamp(
+                inputs_toChange + noise_bd * opt.noise_rate, -1, 1)
             inputs_bd = gauss_smooth(inputs_bd)
             targets_bd = create_targets_bd(targets_toChange, opt)
             preds_bd = netC(inputs_bd)
 
             total_bd_sample += len(ntrg_ind)
-            total_bd_correct += torch.sum(torch.argmax(preds_bd, 1) == targets_bd)
+            total_bd_correct += torch.sum(torch.argmax(preds_bd, 1)
+                                          == targets_bd)
 
             acc_clean = total_clean_correct * 100.0 / total_clean_sample
             acc_bd = total_bd_correct * 100.0 / total_bd_sample
@@ -242,7 +246,7 @@ def test_combat(
     return acc_clean, acc_bd
 
 
-def train_step_cd(
+def train_step_pgbd(
     opt,
     train_data,
     train_pois_data,
@@ -272,7 +276,8 @@ def train_step_cd(
             and opt.update_cav
         ):
             if opt.weight_proto:
-                protos = save_classwise_protos_delta(model, train_data, opt, protos)
+                protos = save_classwise_protos_delta(
+                    model, train_data, opt, protos)
                 if opt.cav_type == "synth":
                     protos_pois = save_classwise_protos_delta(
                         model, train_pois_data, opt, protos_pois
@@ -280,7 +285,8 @@ def train_step_cd(
             else:
                 delta = opt.delta
                 opt.delta = 1
-                protos = save_classwise_protos_delta(model, train_data, opt, protos)
+                protos = save_classwise_protos_delta(
+                    model, train_data, opt, protos)
                 if opt.cav_type == "synth":
                     protos_pois = save_classwise_protos_delta(
                         model, train_pois_data, opt, protos_pois
@@ -328,7 +334,8 @@ def train_step_cd(
                     global bn_act
                     bn_act = out
 
-                handle = named_layers[bneck].register_forward_hook(save_activation_hook)
+                handle = named_layers[bneck].register_forward_hook(
+                    save_activation_hook)
 
                 out = model(e.unsqueeze(0).to(device))
 
@@ -344,7 +351,8 @@ def train_step_cd(
                             loss = mse_loss(
                                 act,
                                 torch.from_numpy(
-                                    proto_dic[gt[b].item()]["cluster_" + str(f)]
+                                    proto_dic[gt[b].item()
+                                              ]["cluster_" + str(f)]
                                 )
                                 .cuda()
                                 .unsqueeze(0),
@@ -353,7 +361,8 @@ def train_step_cd(
                             loss += mse_loss(
                                 act,
                                 torch.from_numpy(
-                                    proto_dic[gt[b].item()]["cluster_" + str(f)]
+                                    proto_dic[gt[b].item()
+                                              ]["cluster_" + str(f)]
                                 )
                                 .cuda()
                                 .unsqueeze(0),
@@ -398,7 +407,7 @@ def train_step_cd(
 
                 mse_dvec_lis.append(mse_loss(unit_grad, unit_direc))
 
-                if "cos" in opt.loss_type:  ### Concept loss
+                if "cos" in opt.loss_type:  # Concept loss
                     if opt.agg_cav:
                         cos_ = cos(
                             grad_[0].to(device).float().squeeze(0).flatten(),
@@ -534,7 +543,8 @@ def get_cav(opt, protos, pairs_lis, protos_pois=None):
             ):  # Because we don't need MM in both cases
                 class_protos[c] = upconv_m(get_proto(c, proto_dic).cuda())
                 if protos_pois:
-                    class_protos_pois[c] = upconv_m(get_proto(c, proto_dic_pois).cuda())
+                    class_protos_pois[c] = upconv_m(
+                        get_proto(c, proto_dic_pois).cuda())
             else:
                 class_protos[c] = get_proto(c, proto_dic).cuda()
                 if protos_pois:
@@ -592,7 +602,8 @@ def get_cav_delta(
             if opt.distill and opt.dino_acts == False:
                 class_protos[c] = upconv_m(get_proto(c, proto_dic).cuda())
                 if protos_pois:
-                    class_protos_pois[c] = upconv_m(get_proto(c, proto_dic_pois).cuda())
+                    class_protos_pois[c] = upconv_m(
+                        get_proto(c, proto_dic_pois).cuda())
             else:
                 class_protos[c] = get_proto(c, proto_dic).cuda()
                 if protos_pois:
@@ -612,7 +623,8 @@ def get_cav_delta(
                         1 - opt.delta
                     ) * prev_cav[c]
                 else:
-                    cav[c] = (opt.delta) * cav_dino[c] + (1 - opt.delta) * prev_cav[c]
+                    cav[c] = (opt.delta) * cav_dino[c] + \
+                        (1 - opt.delta) * prev_cav[c]
                 cav_dino_agg += cav_dino[c]
         cav_dino_agg /= opt.num_class - 1
         cav_agg = None
@@ -627,7 +639,7 @@ def get_cav_delta(
     return cav_dic, cav_dic_agg
 
 
-def cd(opt):
+def pgbd(opt):
     print(opt.num_class)
     model = select_model(
         dataset=opt.dataset,
@@ -653,7 +665,8 @@ def cd(opt):
         img_to_tensor = tfs.PILToTensor()
         pattern = img_to_tensor(trig_img)
     except:
-        pattern = inversion(opt, model, opt.target_label, train_loader, gamma=g, seed=s)
+        pattern = inversion(opt, model, opt.target_label,
+                            train_loader, gamma=g, seed=s)
         tensor_to_img = tfs.ToPILImage()
         trig_img = tensor_to_img(pattern)
         trig_img.save(trig_path)
@@ -665,8 +678,9 @@ def cd(opt):
 
     protos = save_classwise_protos(
         model, train_data, opt
-    )  ################################## *******************************
+    )  # *******************************
     protos_pois = None
+    # synth stands for V(S) usage, i.e. ST-PGBD variant in the paper
     if opt.cav_type == "synth":
         protos_pois = save_classwise_protos(model, train_pois_data, opt)
     # print(len(protos.keys()), protos.keys())
@@ -777,7 +791,8 @@ def cd(opt):
             [
                 tfs.ToTensor(),
                 tfs.Resize(size=(32, 32), max_size=None, antialias=None),
-                tfs.Normalize(mean=[0.4914, 0.4822, 0.4465], std=[0.247, 0.243, 0.261]),
+                tfs.Normalize(mean=[0.4914, 0.4822, 0.4465],
+                              std=[0.247, 0.243, 0.261]),
             ]
         )
         test_bad_data = None
@@ -840,7 +855,8 @@ def cd(opt):
                 netG.eval()
                 test_combat(model, netG, test_clean_loader, epoch, opt)
             else:
-                test(opt, test_clean_loader, test_bad_loader, nets, criterions, epoch)
+                test(opt, test_clean_loader, test_bad_loader,
+                     nets, criterions, epoch)
             # return
         print("===Epoch: {}/{}===".format(epoch + 1, opt.epochs))
         if opt.sched_delta:
@@ -853,7 +869,8 @@ def cd(opt):
         train_loader = DataLoader(train_data, batch_size=16, shuffle=True)
         if opt.update_cav and epoch % opt.update_gap == 0 and opt.update_gap_iter == -1:
             if opt.weight_proto:
-                protos = save_classwise_protos_delta(model, train_data, opt, protos)
+                protos = save_classwise_protos_delta(
+                    model, train_data, opt, protos)
                 if opt.cav_type == "synth":
                     protos_pois = save_classwise_protos_delta(
                         model, train_pois_data, opt, protos_pois
@@ -861,7 +878,8 @@ def cd(opt):
             else:
                 delta = opt.delta
                 opt.delta = 1
-                protos = save_classwise_protos_delta(model, train_data, opt, protos)
+                protos = save_classwise_protos_delta(
+                    model, train_data, opt, protos)
                 if opt.cav_type == "synth":
                     protos_pois = save_classwise_protos_delta(
                         model, train_pois_data, opt, protos_pois
@@ -879,7 +897,7 @@ def cd(opt):
                 )
                 opt.delta = delta
             # linearly weigh both protos and cav & cav alone.. start with delta = 0.5
-        train_step_cd(
+        train_step_pgbd(
             opt,
             train_data,
             train_pois_data,
@@ -905,7 +923,8 @@ def cd(opt):
             netG.load_state_dict(state_dict)
             netG.eval()
         else:
-            test(opt, test_clean_loader, test_bad_loader, nets, criterions, epoch + 1)
+            test(opt, test_clean_loader, test_bad_loader,
+                 nets, criterions, epoch + 1)
 
 
 if __name__ == "__main__":
@@ -974,5 +993,5 @@ if __name__ == "__main__":
     opt.data_name = opt.dataset
     opt.use_kmedoids = False
     print(opt)
-    cd(opt)
+    pgbd(opt)
     # print(opt)

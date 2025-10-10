@@ -292,7 +292,7 @@ def train_step_pgbd(
                         model, train_pois_data, opt, protos_pois
                     )
                 opt.delta = delta
-            if opt.weight_cav:
+            if opt.weight_pav:
                 cav_dic_class, cav_dic = get_cav_delta(
                     opt, protos, pairs_lis, cav_dic_class, cav_dic, protos_pois
                 )
@@ -656,25 +656,29 @@ def pgbd(opt):
     train_loader = get_train_loader(opt)
 
     train_loader = get_train_loader(opt)
-    g = 10
-    s = 1234
-    trig_path = f"./trig_sets/synthetic_{opt.s_name}_{opt.attack_method}_{opt.dataset}_g_{g}_seed_{s}_t_{opt.target_label}.png"
-    pattern = None
-    try:
-        trig_img = Image.open(trig_path)
-        img_to_tensor = tfs.PILToTensor()
-        pattern = img_to_tensor(trig_img)
-    except:
-        pattern = inversion(opt, model, opt.target_label,
-                            train_loader, gamma=g, seed=s)
-        tensor_to_img = tfs.ToPILImage()
-        trig_img = tensor_to_img(pattern)
-        trig_img.save(trig_path)
-        print("Done with exception")
 
-    train_pois_data = get_backdoor_loader(
-        opt, shuffle=False, without_loader=True, use_available=True, pattern=pattern
-    )
+    # Initialization for synthetic trigger in the case of ST-PGBD
+    pattern = None
+    train_pois_data = None
+    if opt.cav_type == "synth":
+        g = 10
+        s = 1234
+        trig_path = f"./trig_sets/synthetic_{opt.s_name}_{opt.attack_method}_{opt.dataset}_g_{g}_seed_{s}_t_{opt.target_label}.png"
+        try:
+            trig_img = Image.open(trig_path)
+            img_to_tensor = tfs.PILToTensor()
+            pattern = img_to_tensor(trig_img)
+        except:
+            pattern = inversion(opt, model, opt.target_label,
+                                train_loader, gamma=g, seed=s)
+            tensor_to_img = tfs.ToPILImage()
+            trig_img = tensor_to_img(pattern)
+            trig_img.save(trig_path)
+            print("Done with exception")
+
+        train_pois_data = get_backdoor_loader(
+            opt, shuffle=False, without_loader=True, use_available=True, pattern=pattern
+        )
 
     protos = save_classwise_protos(
         model, train_data, opt
@@ -683,9 +687,37 @@ def pgbd(opt):
     # synth stands for V(S) usage, i.e. ST-PGBD variant in the paper
     if opt.cav_type == "synth":
         protos_pois = save_classwise_protos(model, train_pois_data, opt)
-    # print(len(protos.keys()), protos.keys())
+
     pairs_lis = dict()
     pairs_lis["clean0"] = [("", "")]
+
+    # Check if activation files already exist, if not save them before starting sanitization
+    is_acts_saved = {bneck: False for bneck in opt.bottlenecks}
+    for bneck in opt.bottlenecks:
+        dino_acts_path = f"dino_activations_{opt.s_name}_{opt.dataset}_{opt.attack_method}_{bneck[-2:]}"
+        student_acts_path = f"student_activations_{opt.s_name}_{opt.dataset}_{opt.attack_method}_{bneck[-2:]}"
+        if os.path.exists(dino_acts_path) and os.path.exists(student_acts_path):
+            print(
+                f"Activation files for {bneck} already exist! Loading them directly...")
+            is_acts_saved[bneck] = True
+        else:
+            train_dino_data = get_train_loader(
+                opt, without_loader=True, dino=True)
+            if opt.cav_type == "proto":
+                num_csets, pairs_lis = save_acts(
+                    model, opt, train_data, train_dino_data)
+            elif opt.cav_type == "synth":
+                train_dino_pois_data = get_backdoor_loader(
+                    opt,
+                    shuffle=False,
+                    without_loader=True,
+                    use_available=True,
+                    pattern=pattern,
+                    dino=True,
+                )
+                save_acts(model, opt, train_data, train_dino_data,
+                          train_pois_data, train_dino_pois_data)
+            break
 
     cav_dic, cav_dic_agg = get_cav(opt, protos, pairs_lis, protos_pois)
 
@@ -697,7 +729,7 @@ def pgbd(opt):
     )
     nets = {"model": model, "victimized_model": copy.deepcopy(model)}
     test_clean_loader, test_bad_loader = get_test_loader(opt)
-
+    # TODO: Can this part be pushed into data_loader.py?
     if (
         opt.attack_method == "semantic"
         or opt.attack_method == "semantic_mask"
@@ -707,7 +739,7 @@ def pgbd(opt):
             [
                 tfs.ToTensor(),
                 tfs.Resize((64, 64)),
-                tfs.Normalize(
+                tfs.Normalize(  # print(len(protos.keys()), protos.keys())
                     torch.tensor([0.6668, 0.5134, 0.4482]),
                     torch.tensor([0.0691, 0.0599, 0.0585]),
                 ),
@@ -807,13 +839,14 @@ def pgbd(opt):
         criterionCls = nn.CrossEntropyLoss().cuda()
     else:
         criterionCls = nn.CrossEntropyLoss()
+
     wtcav = opt.wtcav
     wtcavs = {}
     for i in range(len(opt.bottlenecks)):
         wtcavs[opt.bottlenecks[i]] = wtcav / (len(opt.bottlenecks) - i)
     if opt.use_wandb:
         wandb.init(
-            project="Concept Based Detriggering",
+            project="PGBD",
             config={
                 "s_name": opt.s_name,
                 "attack_method": opt.attack_method,
@@ -828,7 +861,7 @@ def pgbd(opt):
                 "loss_type": opt.loss_type,
                 "agg_cav": opt.agg_cav,
                 "update_cav": opt.update_cav,
-                "weight_cav": opt.weight_cav,
+                "weight_pav": opt.weight_pav,
                 "weight_proto": opt.weight_proto,
                 "update_gap": opt.update_gap,
                 "update_gap_iter": opt.update_gap_iter,
@@ -844,30 +877,15 @@ def pgbd(opt):
         criterions = {"criterionCls": criterionCls, "gt_loss": criterionCls}
         if epoch == 0:
             # before training test firstly
-            if opt.attack_method == "combat":
-                netG = select_model(
-                    dataset=opt.dataset, model_name="combat_gen", pretrained=False
-                ).to(opt.device)
-                state_dict = torch.load(
-                    "/home2/ava9/COMBAT/checkpoints/train_generator_n008_pc05_clean/cifar10/cifar10_train_generator_n008_pc05_clean.pth.tar"
-                )
-                netG.load_state_dict(state_dict)
-                netG.eval()
-                test_combat(model, netG, test_clean_loader, epoch, opt)
-            else:
-                test(opt, test_clean_loader, test_bad_loader,
-                     nets, criterions, epoch)
-            # return
+            test(opt, test_clean_loader, test_bad_loader,
+                 nets, criterions, epoch)
         print("===Epoch: {}/{}===".format(epoch + 1, opt.epochs))
         if opt.sched_delta:
             delta_sched(opt, epoch)
-            # smooth_delta_sched(opt, epoch)
 
-        # break
-        # fine_defense_adjust_learning_rate(optimizer, epoch, opt.lr, opt.dataset, mode="CD")
-        # train_dataset = torch.utils.data.ConcatDataset([train_data, train_pois_data])
         train_loader = DataLoader(train_data, batch_size=16, shuffle=True)
         if opt.update_cav and epoch % opt.update_gap == 0 and opt.update_gap_iter == -1:
+            # Do weighted update step for prototypes and pavs
             if opt.weight_proto:
                 protos = save_classwise_protos_delta(
                     model, train_data, opt, protos)
@@ -885,7 +903,7 @@ def pgbd(opt):
                         model, train_pois_data, opt, protos_pois
                     )
                 opt.delta = delta
-            if opt.weight_cav:
+            if opt.weight_pav:
                 cav_dic, cav_dic_agg = get_cav_delta(
                     opt, protos, pairs_lis, cav_dic, cav_dic_agg, protos_pois
                 )
@@ -896,7 +914,7 @@ def pgbd(opt):
                     opt, protos, pairs_lis, cav_dic, cav_dic_agg, protos_pois
                 )
                 opt.delta = delta
-            # linearly weigh both protos and cav & cav alone.. start with delta = 0.5
+            # linearly weigh both protos and pav & pav alone.. start with delta = 0.5
         train_step_pgbd(
             opt,
             train_data,
@@ -932,7 +950,7 @@ if __name__ == "__main__":
 
     # opt = get_arguments().parse_args()
     # opt = get_arguments_1().parse_args()
-    opt = get_arguments_wanet_preact().parse_args()
+    opt = get_arguments_2_preact().parse_args()
     # print(opt.s_name, opt.model, opt.attack_method, ", wtcav: ", opt.wtcav, ", delta:   ", opt.delta)
     # print(opt.epochs, opt.delta)
     # exit()

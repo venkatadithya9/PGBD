@@ -62,7 +62,8 @@ def get_train_loader(
                     ),
                 ]
             )
-        trainset = datasets.CIFAR10(root="data/CIFAR10", train=True, download=True)
+        trainset = datasets.CIFAR10(
+            root="data/CIFAR10", train=True, download=True)
     elif opt.dataset == "CIFAR100":
         tf_train = transforms.Compose(
             [
@@ -95,7 +96,8 @@ def get_train_loader(
                     ),
                 ]
             )
-        trainset = datasets.CIFAR100(root="./data/CIFAR100", train=True, download=True)
+        trainset = datasets.CIFAR100(
+            root="./data/CIFAR100", train=True, download=True)
     elif opt.dataset == "imagenet":
         tf_train = transforms.Compose(
             [
@@ -268,7 +270,8 @@ def get_test_loader(opt):
                 ),
             ]
         )
-        testset = datasets.CIFAR10(root="data/CIFAR10", train=False, download=True)
+        testset = datasets.CIFAR10(
+            root="data/CIFAR10", train=False, download=True)
     elif opt.dataset == "CIFAR100":
         tf_test = transforms.Compose(
             [
@@ -278,7 +281,8 @@ def get_test_loader(opt):
                 ),
             ]
         )
-        testset = datasets.CIFAR100(root="data/CIFAR100", train=False, download=True)
+        testset = datasets.CIFAR100(
+            root="data/CIFAR100", train=False, download=True)
     elif opt.dataset == "tinyImagenet":
         tf_test = transforms.Compose(
             [
@@ -311,12 +315,7 @@ def get_test_loader(opt):
                 # transforms.Normalize((0.3403, 0.3121, 0.3214), (0.2724, 0.2608, 0.2669))
             ]
         )
-        # testset = DatasetFolder(
-        #     root='data/GTSRB/test',  # please replace this with path to your test set
-        #     loader=cv2.imread,
-        #     extensions=('ppm',),
-        #     transform=tmp,
-        #     target_transform=None)
+
         testset = GTSRB(data_root="data/GTSRB", train=False, transform=tmp)
     elif opt.dataset == "ROF":
 
@@ -334,12 +333,7 @@ def get_test_loader(opt):
                 # transforms.Normalize((0.3403, 0.3121, 0.3214), (0.2724, 0.2608, 0.2669))
             ]
         )
-        # testset = DatasetFolder(
-        #     root='data/GTSRB/test',  # please replace this with path to your test set
-        #     loader=cv2.imread,
-        #     extensions=('ppm',),
-        #     transform=tmp,
-        #     target_transform=None)
+
         testset = []
     else:
         raise Exception("Invalid dataset")
@@ -411,7 +405,8 @@ def get_backdoor_loader(
                     ),
                 ]
             )
-        trainset = datasets.CIFAR10(root="data/CIFAR10", train=True, download=True)
+        trainset = datasets.CIFAR10(
+            root="data/CIFAR10", train=True, download=True)
 
     elif opt.dataset == "gtsrb":
 
@@ -505,7 +500,8 @@ def get_backdoor_loader(
                     ),
                 ]
             )
-        trainset = datasets.CIFAR100(root="./data/CIFAR100", train=True, download=True)
+        trainset = datasets.CIFAR100(
+            root="./data/CIFAR100", train=True, download=True)
     elif opt.dataset == "tinyImagenet":
         tf_train = transforms.Compose(
             [
@@ -579,7 +575,8 @@ def get_backdoor_loader(
 
 class DatasetCL(Dataset):
     def __init__(self, opt, full_dataset=None, transform=None, target_transform=None):
-        self.dataset = self.random_split(full_dataset=full_dataset, ratio=opt.ratio)
+        self.dataset = self.random_split(
+            full_dataset=full_dataset, ratio=opt.ratio)
         self.transform = transform
         self.target_transform = target_transform
         self.dataLen = len(self.dataset)
@@ -606,7 +603,8 @@ class DatasetCL(Dataset):
         train_dataset, drop_dataset = random_split(
             full_dataset, [train_size, drop_size]
         )
-        print("train_size:", len(train_dataset), "drop_size:", len(drop_dataset))
+        print("train_size:", len(train_dataset),
+              "drop_size:", len(drop_dataset))
 
         return train_dataset
 
@@ -662,7 +660,8 @@ class DatasetBD(Dataset):
         train_dataset, drop_dataset = random_split(
             full_dataset, [train_size, drop_size]
         )
-        print("train_size:", len(train_dataset), "drop_size:", len(drop_dataset))
+        print("train_size:", len(train_dataset),
+              "drop_size:", len(drop_dataset))
 
         return train_dataset
 
@@ -682,7 +681,7 @@ class DatasetBD(Dataset):
         print("Generating " + mode + "bad Imgs")
         if target_type != "cleanLabel" or inject_portion == 1:
             self.perm = np.random.permutation(len(dataset))[
-                0 : int(len(dataset) * inject_portion)
+                0: int(len(dataset) * inject_portion)
             ]
         else:
             self.perm = []
@@ -906,7 +905,8 @@ class DatasetBD(Dataset):
             img = torch.clamp(img + self.pattern, 0, 1)
             img = img.numpy()
         elif triggerType == "squareTrigger":
-            img = self._squareTrigger(img, width, height, distance, trig_w, trig_h)
+            img = self._squareTrigger(
+                img, width, height, distance, trig_w, trig_h)
         elif triggerType == "customSquareTrigger":
             img = self._customSquareTrigger(
                 img, width, height, distance, trig_w, trig_h
@@ -916,21 +916,25 @@ class DatasetBD(Dataset):
                 img, width, height, distance, trig_w, trig_h, t_dataset
             )
         elif triggerType == "fourCornerTrigger":
-            img = self._fourCornerTrigger(img, width, height, distance, trig_w, trig_h)
+            img = self._fourCornerTrigger(
+                img, width, height, distance, trig_w, trig_h)
         elif triggerType == "centerTrigger":
-            img = self._centerTriger(img, width, height, distance, trig_w, trig_h)
+            img = self._centerTriger(
+                img, width, height, distance, trig_w, trig_h)
         elif triggerType == "blendTrigger":
             img = self._blendTrigger(
                 img, width, height, distance, trig_w, trig_h, t_dataset
             )
         elif triggerType == "signalTrigger":
-            img = self._signalTrigger(img, width, height, distance, trig_w, trig_h)
+            img = self._signalTrigger(
+                img, width, height, distance, trig_w, trig_h)
         elif triggerType == "trojanTrigger":
             img = self._trojanTrigger(
                 img, width, height, distance, trig_w, trig_h, t_dataset
             )
         elif triggerType == "randomPixelTrigger":
-            img = self._randomPixelTrigger(img, width, height, distance, trig_w, trig_h)
+            img = self._randomPixelTrigger(
+                img, width, height, distance, trig_w, trig_h)
         elif triggerType == "wanetTrigger":
             # print("SHAPE:   ", img.shape)
             # if train:
@@ -939,7 +943,8 @@ class DatasetBD(Dataset):
             to_tensor = transforms.ToTensor()
 
             img = normalize(to_tensor(img).type(torch.float32))
-            device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+            device = torch.device(
+                "cuda:0" if torch.cuda.is_available() else "cpu")
             k = 4
             s = 0.5
             grid_rescale = 1
@@ -964,7 +969,8 @@ class DatasetBD(Dataset):
             identity_grid = torch.stack((y, x), 2)[None, ...].to(
                 device
             )  # stack x,y like two layer, then add one more dimension at first place. (have torch.Size([1, 32, 32, 2]))
-            grid_temps = (identity_grid + s * noise_grid / input_height) * grid_rescale
+            grid_temps = (identity_grid + s * noise_grid /
+                          input_height) * grid_rescale
             grid_temps = torch.clamp(grid_temps, -1, 1)
             # print(img.shape, grid_temps.shape ,grid_temps.repeat(1, 1, 1, 1).shape)
             img = denormalize(
@@ -1009,7 +1015,8 @@ class DatasetBD(Dataset):
         # img[width - distance - trig_w - 1,height-distance-trig_h-1: height] = [191, 191, 191]
         with open("badnet_tiny_trig.pkl", "rb") as f:
             trig = pkl.load(f)
-        img[width - trig.shape[0] : width, height - trig.shape[1] : height, :] = trig
+        img[width - trig.shape[0]: width, height -
+            trig.shape[1]: height, :] = trig
         return img
 
     def _gridTriger(self, img, width, height, distance, trig_w, trig_h, t_dataset):
@@ -1116,8 +1123,10 @@ class DatasetBD(Dataset):
 
     def _randomPixelTrigger(self, img, width, height, distance, trig_w, trig_h):
         alpha = 0.2
-        mask = np.random.randint(low=0, high=256, size=(width, height), dtype=np.uint8)
-        blend_img = (1 - alpha) * img + alpha * mask.reshape((width, height, 1))
+        mask = np.random.randint(
+            low=0, high=256, size=(width, height), dtype=np.uint8)
+        blend_img = (1 - alpha) * img + alpha * \
+            mask.reshape((width, height, 1))
         blend_img = np.clip(blend_img.astype("uint8"), 0, 255)
 
         # print(blend_img.dtype)

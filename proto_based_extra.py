@@ -64,7 +64,8 @@ def get_act_classwise(model, data, opt, dino=False):
             else:
                 acts = get_dino_activations(X_c_dataloader, opt.device)
                 torch.concat([acts])
-            acts_classwise[c] = acts.detach().cpu().numpy().reshape(acts.shape[0], -1)
+            acts_classwise[c] = acts.detach().cpu(
+            ).numpy().reshape(acts.shape[0], -1)
             ss = acts.shape
             ss_len = len(ss)
             # print(acts_classwise[c].shape)
@@ -80,19 +81,22 @@ def get_act_classwise(model, data, opt, dino=False):
                 for f in range(opt.knn_k):
                     if c in proto_dic:
                         if ss_len == 4:
-                            proto_dic[c] += centers[f].reshape(ss[1], ss[2], ss[3])
+                            proto_dic[c] += centers[f].reshape(
+                                ss[1], ss[2], ss[3])
                         else:
                             proto_dic[c] += centers[f].reshape(ss[1])
                     else:
                         proto_dic[c] = {}
                         if ss_len == 4:
-                            proto_dic[c] = centers[f].reshape(ss[1], ss[2], ss[3])
+                            proto_dic[c] = centers[f].reshape(
+                                ss[1], ss[2], ss[3])
                         else:
                             proto_dic[c] = centers[f].reshape(ss[1])
                 proto_dic[c] /= opt.knn_k
             else:
                 proto_dic[c] = (
-                    torch.mean(acts, axis=0).unsqueeze(0).detach().cpu().numpy()
+                    torch.mean(acts, axis=0).unsqueeze(
+                        0).detach().cpu().numpy()
                 )
             proto_dic[c] = proto_dic[c].reshape(1, -1)
             acts_classwise[c] = np.vstack([acts_classwise[c], proto_dic[c]])
@@ -127,12 +131,14 @@ def tsne_vis(opt, p, e, acts_classwise, acts_classwise_pois, epoch, seed=42):
         "#17becf",
     ]
 
-    tsne = TSNE(n_components=2, random_state=seed, perplexity=p, early_exaggeration=e)
+    tsne = TSNE(n_components=2, random_state=seed,
+                perplexity=p, early_exaggeration=e)
     acts_classwise_tsne = {}
     acts_classwise_pois_tsne = {}
     for c in acts_classwise:
         acts_classwise_tsne[c] = tsne.fit_transform(acts_classwise[c])
-        acts_classwise_pois_tsne[c] = tsne.fit_transform(acts_classwise_pois[c])
+        acts_classwise_pois_tsne[c] = tsne.fit_transform(
+            acts_classwise_pois[c])
         # proto_dic[c] = tsne.fit_transform(proto_dic[c])
         # proto_dic_pois[c] = tsne.fit_transform(proto_dic_pois[c])
         # print(acts_classwise_tsne[c].shape)
@@ -358,7 +364,7 @@ def train_step_cd(
         #         if opt.cav_type == "synth":
         #             protos_pois = save_classwise_protos_delta(model, train_pois_data, opt, protos_pois)
         #         opt.delta = delta
-        #     if opt.weight_cav:
+        #     if opt.weight_pav:
         #         cav_dic_class, cav_dic = get_cav_delta(opt, protos, pairs_lis, cav_dic_class, cav_dic, protos_pois)
         #     else:
         #         delta = opt.delta
@@ -396,7 +402,8 @@ def train_step_cd(
                     global bn_act
                     bn_act = out
 
-                handle = named_layers[bneck].register_forward_hook(save_activation_hook)
+                handle = named_layers[bneck].register_forward_hook(
+                    save_activation_hook)
 
                 out = model(e.unsqueeze(0).to(device))
 
@@ -412,7 +419,8 @@ def train_step_cd(
                             loss = mse_loss(
                                 act,
                                 torch.from_numpy(
-                                    proto_dic[gt[b].item()]["cluster_" + str(f)]
+                                    proto_dic[gt[b].item()
+                                              ]["cluster_" + str(f)]
                                 )
                                 .cuda()
                                 .unsqueeze(0),
@@ -421,7 +429,8 @@ def train_step_cd(
                             loss += mse_loss(
                                 act,
                                 torch.from_numpy(
-                                    proto_dic[gt[b].item()]["cluster_" + str(f)]
+                                    proto_dic[gt[b].item()
+                                              ]["cluster_" + str(f)]
                                 )
                                 .cuda()
                                 .unsqueeze(0),
@@ -466,7 +475,7 @@ def train_step_cd(
 
                 mse_dvec_lis.append(mse_loss(unit_grad, unit_direc))
 
-                if "cos" in opt.loss_type:  ### Concept loss
+                if "cos" in opt.loss_type:  # Concept loss
                     if opt.agg_cav:
                         cos_ = cos(
                             grad_[0].to(device).float().squeeze(0).flatten(),
@@ -613,7 +622,8 @@ def get_cav(opt, protos, pairs_lis, protos_pois=None, upconvs=None, downconvs=No
             ):  # Because we don't need upnconv in both cases
                 class_protos[c] = upconv_m(get_proto(c, proto_dic).cuda())
                 if protos_pois:
-                    class_protos_pois[c] = upconv_m(get_proto(c, proto_dic_pois).cuda())
+                    class_protos_pois[c] = upconv_m(
+                        get_proto(c, proto_dic_pois).cuda())
             else:
                 class_protos[c] = get_proto(c, proto_dic).cuda()
                 if protos_pois:
@@ -684,7 +694,8 @@ def get_cav_delta(
             if opt.distill and opt.dino_acts == False and opt.dino_acts_mm == False:
                 class_protos[c] = upconv_m(get_proto(c, proto_dic).cuda())
                 if protos_pois:
-                    class_protos_pois[c] = upconv_m(get_proto(c, proto_dic_pois).cuda())
+                    class_protos_pois[c] = upconv_m(
+                        get_proto(c, proto_dic_pois).cuda())
             else:
                 class_protos[c] = get_proto(c, proto_dic).cuda()
                 if protos_pois:
@@ -704,7 +715,8 @@ def get_cav_delta(
                         1 - opt.delta
                     ) * prev_cav[c]
                 else:
-                    cav[c] = (opt.delta) * cav_dino[c] + (1 - opt.delta) * prev_cav[c]
+                    cav[c] = (opt.delta) * cav_dino[c] + \
+                        (1 - opt.delta) * prev_cav[c]
                 cav_dino_agg += cav_dino[c]
         cav_dino_agg /= opt.num_class - 1
         cav_agg = None
@@ -863,7 +875,8 @@ def cd(opt):
         img_to_tensor = tfs.PILToTensor()
         pattern = img_to_tensor(trig_img)
     except:
-        pattern = inversion(opt, model, opt.target_label, train_loader, gamma=g, seed=s)
+        pattern = inversion(opt, model, opt.target_label,
+                            train_loader, gamma=g, seed=s)
         tensor_to_img = tfs.ToPILImage()
         trig_img = tensor_to_img(pattern)
         trig_img.save(trig_path)
@@ -905,7 +918,8 @@ def cd(opt):
     # else:
     if opt.cav_type == "proto":
         try:
-            num_csets, pairs_lis = save_acts(model, opt, train_data, train_dino_data)
+            num_csets, pairs_lis = save_acts(
+                model, opt, train_data, train_dino_data)
         except:
             raise
     elif opt.cav_type == "synth":
@@ -929,7 +943,7 @@ def cd(opt):
 
     protos = save_classwise_protos(
         model, train_data, opt
-    )  ################################## *******************************
+    )  # *******************************
     protos_pois = None
     if opt.cav_type == "synth" and opt.dino_acts == False and opt.dino_acts_mm == False:
         protos_pois = save_classwise_protos(model, train_pois_data, opt)
@@ -967,7 +981,8 @@ def cd(opt):
     cav_dic = None
     cav_dic_agg = None
     if opt.dino_acts:
-        cav_dic, cav_dic_agg = get_cav(opt, protos_dino, pairs_lis, protos_pois_dino)
+        cav_dic, cav_dic_agg = get_cav(
+            opt, protos_dino, pairs_lis, protos_pois_dino)
     elif opt.dino_acts_mm:
         cav_dic, cav_dic_agg = get_cav(
             opt, protos_dino, pairs_lis, protos_pois_dino, upconvs, downconvs
@@ -996,7 +1011,7 @@ def cd(opt):
                 "loss_type": opt.loss_type,
                 "agg_cav": opt.agg_cav,
                 "update_cav": opt.update_cav,
-                "weight_cav": opt.weight_cav,
+                "weight_pav": opt.weight_pav,
                 "weight_proto": opt.weight_proto,
                 "update_gap": opt.update_gap,
                 "update_gap_iter": opt.update_gap_iter,
@@ -1057,7 +1072,8 @@ def cd(opt):
                         )
                     )
                 else:
-                    protos = save_classwise_protos_delta(model, train_data, opt, protos)
+                    protos = save_classwise_protos_delta(
+                        model, train_data, opt, protos)
                 if opt.cav_type == "synth":
                     if opt.dino_acts:
                         protos_pois_dino = save_classwise_protos_dino_delta(
@@ -1109,7 +1125,8 @@ def cd(opt):
                         )
                     )
                 else:
-                    protos = save_classwise_protos_delta(model, train_data, opt, protos)
+                    protos = save_classwise_protos_delta(
+                        model, train_data, opt, protos)
                 if opt.cav_type == "synth":
                     if opt.dino_acts:
                         protos_pois_dino = save_classwise_protos_dino_delta(
@@ -1147,7 +1164,7 @@ def cd(opt):
                             model, train_gt_pois_data, opt, protos_gt_pois
                         )
                 opt.delta = delta
-            if opt.weight_cav:
+            if opt.weight_pav:
                 if opt.dino_acts:
                     cav_dic, cav_dic_agg = get_cav_delta(
                         opt,

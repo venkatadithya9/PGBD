@@ -28,6 +28,7 @@ import pickle as pkl
 import glob
 import time
 import sys
+import os
 
 term_width = 317
 
@@ -325,9 +326,11 @@ def create_targets_bd(targets, opt):
     if opt.target_type == "all2one":
         bd_targets = torch.ones_like(targets) * opt.target_label
     elif opt.target_type == "all2all":
-        bd_targets = torch.tensor([(label + 1) % opt.num_classes for label in targets])
+        bd_targets = torch.tensor(
+            [(label + 1) % opt.num_classes for label in targets])
     else:
-        raise Exception("{} attack mode is not implemented".format(opt.target_type))
+        raise Exception(
+            "{} attack mode is not implemented".format(opt.target_type))
     return bd_targets.to(opt.device)
 
 
@@ -415,7 +418,8 @@ def save_classwise_protos(model, data, opt, bss=35, use_knn_proto=True):
                 # giving half weightage to old proto mean and half to new proto
                 if use_knn_proto and opt.knn_k != 1:
                     acts = acts.detach().cpu().numpy().reshape((-1, flat_dim))
-                    kmeans = KMeans(n_clusters=opt.knn_k, random_state=0).fit(acts)
+                    kmeans = KMeans(n_clusters=opt.knn_k,
+                                    random_state=0).fit(acts)
                     if opt.use_kmedoids:
                         kmeans = KMedoids(n_clusters=opt.knn_k, random_state=0).fit(
                             acts
@@ -445,7 +449,8 @@ def save_classwise_protos(model, data, opt, bss=35, use_knn_proto=True):
 
                 else:
                     proto_dic[c] = (
-                        torch.mean(acts, axis=0).unsqueeze(0).detach().cpu().numpy()
+                        torch.mean(acts, axis=0).unsqueeze(
+                            0).detach().cpu().numpy()
                     )
             protos[bottleneck_name] = proto_dic
     # for param in model.parameters():
@@ -492,7 +497,8 @@ def save_classwise_protos_delta(
                 # giving half weightage to old proto mean and half to new proto
                 if use_knn_proto and opt.knn_k != 1:
                     acts = acts.detach().cpu().numpy().reshape((-1, flat_dim_ss))
-                    kmeans = KMeans(n_clusters=opt.knn_k, random_state=0).fit(acts)
+                    kmeans = KMeans(n_clusters=opt.knn_k,
+                                    random_state=0).fit(acts)
                     centers = kmeans.cluster_centers_
                     for f in range(opt.knn_k):
                         if c in proto_dic:
@@ -564,7 +570,8 @@ def save_classwise_protos_dino(model, data, opt, bss=35, use_knn_proto=True):
                 # giving half weightage to old proto mean and half to new proto
                 if use_knn_proto and opt.knn_k != 1:
                     acts = acts.detach().cpu().numpy().reshape((-1, flat_dim))
-                    kmeans = KMeans(n_clusters=opt.knn_k, random_state=0).fit(acts)
+                    kmeans = KMeans(n_clusters=opt.knn_k,
+                                    random_state=0).fit(acts)
                     centers = kmeans.cluster_centers_
                     for f in range(opt.knn_k):
                         if c in proto_dic:
@@ -590,7 +597,8 @@ def save_classwise_protos_dino(model, data, opt, bss=35, use_knn_proto=True):
 
                 else:
                     proto_dic[c] = (
-                        torch.mean(acts, axis=0).unsqueeze(0).detach().cpu().numpy()
+                        torch.mean(acts, axis=0).unsqueeze(
+                            0).detach().cpu().numpy()
                     )
             protos[bottleneck_name] = proto_dic
     # for param in model.parameters():
@@ -663,7 +671,8 @@ def save_classwise_protos_dino_mm(
                 # giving half weightage to old proto mean and half to new proto
                 if use_knn_proto and opt.knn_k != 1:
                     acts = acts.detach().cpu().numpy().reshape((-1, flat_dim))
-                    kmeans = KMeans(n_clusters=opt.knn_k, random_state=0).fit(acts)
+                    kmeans = KMeans(n_clusters=opt.knn_k,
+                                    random_state=0).fit(acts)
                     centers = kmeans.cluster_centers_
                     for f in range(opt.knn_k):
                         if c in proto_dic:
@@ -689,7 +698,8 @@ def save_classwise_protos_dino_mm(
 
                 else:
                     proto_dic[c] = (
-                        torch.mean(acts, axis=0).unsqueeze(0).detach().cpu().numpy()
+                        torch.mean(acts, axis=0).unsqueeze(
+                            0).detach().cpu().numpy()
                     )
         protos[bottleneck_name] = proto_dic
     # for param in model.parameters():
@@ -734,7 +744,8 @@ def save_classwise_protos_dino_delta(
                 # giving half weightage to old proto mean and half to new proto
                 if use_knn_proto and opt.knn_k != 1:
                     acts = acts.detach().cpu().numpy().reshape((-1, flat_dim))
-                    kmeans = KMeans(n_clusters=opt.knn_k, random_state=0).fit(acts)
+                    kmeans = KMeans(n_clusters=opt.knn_k,
+                                    random_state=0).fit(acts)
                     centers = kmeans.cluster_centers_
                     for f in range(opt.knn_k):
                         if c in proto_dic:
@@ -845,7 +856,8 @@ def save_classwise_protos_dino_mm_delta(
                 # giving half weightage to old proto mean and half to new proto
                 if use_knn_proto and opt.knn_k != 1:
                     acts = acts.detach().cpu().numpy().reshape((-1, flat_dim))
-                    kmeans = KMeans(n_clusters=opt.knn_k, random_state=0).fit(acts)
+                    kmeans = KMeans(n_clusters=opt.knn_k,
+                                    random_state=0).fit(acts)
                     centers = kmeans.cluster_centers_
                     for f in range(opt.knn_k):
                         if c in proto_dic:
@@ -896,7 +908,8 @@ def map_activation_spaces(img_fea_path, stu_pred_path, pairs, num_imgs, opt):
     upconv_m.cuda()
     downconv_m.cuda()
     model_params = list(upconv_m.parameters()) + list(downconv_m.parameters())
-    optimizer = torch.optim.Adam([p for p in model_params if p.requires_grad], lr=1e-4)
+    optimizer = torch.optim.Adam(
+        [p for p in model_params if p.requires_grad], lr=1e-4)
     loss_lis = []
     concepts = set()
     for p in pairs:
@@ -909,7 +922,8 @@ def map_activation_spaces(img_fea_path, stu_pred_path, pairs, num_imgs, opt):
     for ep in tqdm(range(5)):
         for con in tqdm(concepts):
             img_fea = torch.load(img_fea_path + f"_{con}.pt").cuda()[:num_imgs]
-            stu_pred = torch.load(stu_pred_path + f"_{con}.pt").cuda()[:num_imgs]
+            stu_pred = torch.load(
+                stu_pred_path + f"_{con}.pt").cuda()[:num_imgs]
             fea_s = img_fea.shape
             # img_fea.requires_grad = True
 
@@ -1027,7 +1041,8 @@ def get_activations(model, dataloader, named_layers, bottleneck_name, device):
             inds.append(batch_idx)
             handle.remove()
     acts = torch.concat(acts, axis=0)
-    print(act_shape, np.all(torch.isnan(acts).numpy() == False), np.all(torch.isinf(acts).numpy() == False))
+    # print(act_shape, np.all(torch.isnan(acts).numpy() == False),
+    #       np.all(torch.isinf(acts).numpy() == False))
     return acts, inds
 
 
@@ -1051,7 +1066,8 @@ def get_dino_activations(dataloader, device, pca_components=64):
         elif len(data) == 1:
             batch = data
             label = torch.tensor(5)
-        batch_feats = model.extract_features(batch, transform=False, upsample=False)
+        batch_feats = model.extract_features(
+            batch, transform=False, upsample=False)
         print("Dino features extraction: ", batch.shape, batch_feats.shape)
         # all_filenames.extend(label)
         feat = batch_feats.detach().cpu()
@@ -1069,7 +1085,8 @@ def get_dino_activations(dataloader, device, pca_components=64):
     X = pca.fit_transform(all_features)
     print("Features shape (PCA): ", X.shape)
     X = torch.Tensor(X).view(N, H, W, pca_components).permute(0, 3, 1, 2)
-    print(X.shape, np.all(torch.isnan(X).numpy() == False), np.all(torch.isinf(X).numpy() == False))
+    print(X.shape, np.all(torch.isnan(X).numpy() == False),
+          np.all(torch.isinf(X).numpy() == False))
     return X
 
 
@@ -1082,7 +1099,7 @@ def save_acts(
     train_dino_pois_data=None,
     only_student=False,
 ):
-    ## Poisoned images vs clean images concept set
+    # Poisoned images vs clean images concept set
     device = opt.device
     bottlenecks = opt.bottlenecks
     num_classes = opt.num_class
@@ -1124,14 +1141,16 @@ def save_acts(
     # balanced_act_inds = balanced_clean_inds + balanced_pois_inds
     # print(len(balanced_act_inds))
 
-    clean_set = [Subset(train_data, clean_inds_lis[i]) for i in range(num_csets)]
+    clean_set = [Subset(train_data, clean_inds_lis[i])
+                 for i in range(num_csets)]
     print("In save acts: ", [len(c) for c in clean_set])
     pois_set = None
     if len(balanced_pois_inds) != 0:
         pois_set = Subset(train_pois_data, balanced_pois_inds)
     # pois_set = torch.clamp(pois_set + pattern, 0, 1)
     cset = [clean_set, pois_set]
-
+    if os.path.exists("./csets/") == False:
+        os.mkdir("./csets/")
     cset_path = "./csets/" + opt.attack_method + "_" + opt.dataset
     with open(cset_path + ".pkl", "wb") as f:
         pkl.dump(cset, f)
@@ -1163,7 +1182,8 @@ def save_acts(
                 f"student_activations_{opt.s_name}_{opt.dataset}_{opt.attack_method}_{bottleneck_name[-2:]}_clean{i}.pt",
             )
             if not only_student:
-                dino_acts_clean = get_dino_activations(clean_dino_dataloader, device)
+                dino_acts_clean = get_dino_activations(
+                    clean_dino_dataloader, device)
                 print("DINO ACTS SHAPE: ", dino_acts_clean.shape)
                 pairs_lis[f"clean{i}"] = [("", "")]
                 torch.save(
@@ -1186,7 +1206,8 @@ def save_acts(
                 f"student_activations_{opt.s_name}_{opt.dataset}_{opt.attack_method}_{bottleneck_name[-2:]}_pois.pt",
             )
             if not only_student:
-                dino_acts_pois = get_dino_activations(pois_dino_dataloader, device)
+                dino_acts_pois = get_dino_activations(
+                    pois_dino_dataloader, device)
                 torch.save(
                     dino_acts_pois,
                     f"dino_activations_{opt.s_name}_{opt.dataset}_{opt.attack_method}_{bottleneck_name[-2:]}_pois.pt",
@@ -1256,7 +1277,8 @@ def save_synthetic_acts(model, opt, train_data, train_dino_data, load_existing=F
             augment=False,
         )
 
-        train_loader = DataLoader(train_data, batch_size=opt.batch_size, shuffle=False)
+        train_loader = DataLoader(
+            train_data, batch_size=opt.batch_size, shuffle=False)
 
         for g in range(5, 100, 5):
             for s in seeds:
@@ -1341,7 +1363,8 @@ def save_synthetic_acts(model, opt, train_data, train_dino_data, load_existing=F
             acts_clean, _ = get_activations(
                 model, clean_dataloader, named_layers, bottleneck_name, device
             )
-            dino_acts_clean = get_dino_activations(clean_dino_dataloader, device)
+            dino_acts_clean = get_dino_activations(
+                clean_dino_dataloader, device)
 
             torch.save(
                 acts_clean,

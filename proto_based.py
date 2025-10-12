@@ -869,8 +869,18 @@ def pgbd(opt):
                 "sched_delta": opt.sched_delta,
             },
         )
-        wandb.run.name = f"Proto_and_Trig_{opt.s_name}_{opt.attack_method}_{opt.dataset}_wtcav_{wtcav}_k_{opt.knn_k}_e_{opt.epochs}"
-    print(opt)
+        wandb.run.name = f"PGBD_{opt.s_name}_{opt.attack_method}_{opt.dataset}_wtcav_{wtcav}_k_{opt.knn_k}_e_{opt.epochs}"
+
+    original_target = opt.target_label
+    if opt.no_target:
+        # Check if update_gap is specified, else use default based on number of classes
+        if opt.update_gap == -1:
+            opt.update_gap = int(opt.epochs / opt.num_class)
+            if opt.update_gap == 0:
+                opt.update_gap = 1
+                opt.epochs = opt.num_class
+        print("Using no-target training with update_gap: ", opt.update_gap)
+
     for epoch in range(opt.epochs):
         if opt.use_wandb:
             wandb.log({"epoch": epoch})
@@ -882,6 +892,9 @@ def pgbd(opt):
         print("===Epoch: {}/{}===".format(epoch + 1, opt.epochs))
         if opt.sched_delta:
             delta_sched(opt, epoch)
+
+        if opt.no_target:
+            opt.target_label = (original_target + epoch) % opt.num_class
 
         train_loader = DataLoader(train_data, batch_size=16, shuffle=True)
         if opt.update_cav and epoch % opt.update_gap == 0 and opt.update_gap_iter == -1:
@@ -931,6 +944,7 @@ def pgbd(opt):
             cav_dic,
         )
         print("testing the models......")
+        opt.target_label = original_target
         if opt.attack_method == "combat":
             netG = select_model(
                 dataset=opt.dataset, model_name="combat_gen", pretrained=False

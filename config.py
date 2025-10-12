@@ -169,6 +169,8 @@ def get_arguments():
                         help='Use mapped DINO features before prototype stage')
     parser.add_argument('--use_kmedoids',  action='store_true',
                         help='Use kmedoids instead of kmeans')
+    parser.add_argument('--no_target', action='store_true',
+                        help='Run PGBD in no target mode (NT-PGBD)')
 
     # net and dataset choosen
     parser.add_argument('--data_name', type=str,
@@ -296,6 +298,8 @@ def get_arguments_1():
                         help='Use mapped DINO features before prototype stage')
     parser.add_argument('--use_kmedoids',  action='store_true',
                         help='Use kmedoids instead of kmeans')
+    parser.add_argument('--no_target', action='store_true',
+                        help='Run PGBD in no target mode (NT-PGBD)')
 
     # net and dataset choosen
     parser.add_argument('--data_name', type=str,
@@ -425,6 +429,8 @@ def get_arguments_2():
                         help='Use mapped DINO features before prototype stage')
     parser.add_argument('--use_kmedoids',  action='store_true',
                         help='Use kmedoids instead of kmeans')
+    parser.add_argument('--no_target', action='store_true',
+                        help='Run PGBD in no target mode (NT-PGBD)')
 
     # net and dataset choosen
     parser.add_argument('--data_name', type=str,
@@ -554,6 +560,8 @@ def get_arguments_2_convnext():
                         help='Use mapped DINO features before prototype stage')
     parser.add_argument('--use_kmedoids',  action='store_true',
                         help='Use kmedoids instead of kmeans')
+    parser.add_argument('--no_target', action='store_true',
+                        help='Run PGBD in no target mode (NT-PGBD)')
 
     # net and dataset choosen
     parser.add_argument('--data_name', type=str,
@@ -683,6 +691,8 @@ def get_arguments_2_preact():
                         help='Use mapped DINO features before prototype stage')
     parser.add_argument('--use_kmedoids',  action='store_true',
                         help='Use kmedoids instead of kmeans')
+    parser.add_argument('--no_target', action='store_true',
+                        help='Run PGBD in no target mode (NT-PGBD)')
 
     # net and dataset choosen
     parser.add_argument('--data_name', type=str,
@@ -812,6 +822,8 @@ def get_arguments_2_preact_tiny():
                         help='Use mapped DINO features before prototype stage')
     parser.add_argument('--use_kmedoids',  action='store_true',
                         help='Use kmedoids instead of kmeans')
+    parser.add_argument('--no_target', action='store_true',
+                        help='Run PGBD in no target mode (NT-PGBD)')
 
     # net and dataset choosen
     parser.add_argument('--data_name', type=str,
@@ -941,6 +953,8 @@ def get_arguments_semantic_preact():
                         help='Use mapped DINO features before prototype stage')
     parser.add_argument('--use_kmedoids',  action='store_true',
                         help='Use kmedoids instead of kmeans')
+    parser.add_argument('--no_target', action='store_true',
+                        help='Run PGBD in no target mode (NT-PGBD)')
 
     # net and dataset choosen
     parser.add_argument('--data_name', type=str,
@@ -1070,6 +1084,8 @@ def get_arguments_2_preact34():
                         help='Use mapped DINO features before prototype stage')
     parser.add_argument('--use_kmedoids',  action='store_true',
                         help='Use kmedoids instead of kmeans')
+    parser.add_argument('--no_target', action='store_true',
+                        help='Run PGBD in no target mode (NT-PGBD)')
 
     # net and dataset choosen
     parser.add_argument('--data_name', type=str,
@@ -1199,6 +1215,8 @@ def get_arguments_3():
                         help='Use mapped DINO features before prototype stage')
     parser.add_argument('--use_kmedoids',  action='store_true',
                         help='Use kmedoids instead of kmeans')
+    parser.add_argument('--no_target', action='store_true',
+                        help='Run PGBD in no target mode (NT-PGBD)')
 
     # net and dataset choosen
     parser.add_argument('--data_name', type=str,
@@ -1328,6 +1346,8 @@ def get_arguments_3_preact():
                         help='Use mapped DINO features before prototype stage')
     parser.add_argument('--use_kmedoids',  action='store_true',
                         help='Use kmedoids instead of kmeans')
+    parser.add_argument('--no_target', action='store_true',
+                        help='Run PGBD in no target mode (NT-PGBD)')
 
     # net and dataset choosen
     parser.add_argument('--data_name', type=str,
@@ -1457,6 +1477,8 @@ def get_arguments_4_preact():
                         help='Use mapped DINO features before prototype stage')
     parser.add_argument('--use_kmedoids',  action='store_true',
                         help='Use kmedoids instead of kmeans')
+    parser.add_argument('--no_target', action='store_true',
+                        help='Run PGBD in no target mode (NT-PGBD)')
 
     # net and dataset choosen
     parser.add_argument('--data_name', type=str,
@@ -1586,6 +1608,8 @@ def get_arguments_signal_preact():
                         help='Use mapped DINO features before prototype stage')
     parser.add_argument('--use_kmedoids',  action='store_true',
                         help='Use kmedoids instead of kmeans')
+    parser.add_argument('--no_target', action='store_true',
+                        help='Run PGBD in no target mode (NT-PGBD)')
 
     # net and dataset choosen
     parser.add_argument('--data_name', type=str,
@@ -1715,6 +1739,8 @@ def get_arguments_lc_preact():
                         help='Use mapped DINO features before prototype stage')
     parser.add_argument('--use_kmedoids',  action='store_true',
                         help='Use kmedoids instead of kmeans')
+    parser.add_argument('--no_target', action='store_true',
+                        help='Run PGBD in no target mode (NT-PGBD)')
 
     # net and dataset choosen
     parser.add_argument('--data_name', type=str,
@@ -1844,6 +1870,8 @@ def get_arguments_wanet_preact():
                         help='Use mapped DINO features before prototype stage')
     parser.add_argument('--use_kmedoids',  action='store_true',
                         help='Use kmedoids instead of kmeans')
+    parser.add_argument('--no_target', action='store_true',
+                        help='Run PGBD in no target mode (NT-PGBD)')
 
     # net and dataset choosen
     parser.add_argument('--data_name', type=str,
@@ -1973,6 +2001,8 @@ def get_arguments_signal():
                         help='Use mapped DINO features before prototype stage')
     parser.add_argument('--use_kmedoids',  action='store_true',
                         help='Use kmedoids instead of kmeans')
+    parser.add_argument('--no_target', action='store_true',
+                        help='Run PGBD in no target mode (NT-PGBD)')
 
     # net and dataset choosen
     parser.add_argument('--data_name', type=str,

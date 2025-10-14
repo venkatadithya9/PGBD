@@ -19,7 +19,7 @@ from sklearn.decomposition import PCA
 from sklearn.decomposition import PCA
 import torchvision.transforms as tfs
 from utils import Normalizer
-from inversion_torch import PixelBackdoor
+from utils.inversion_torch import PixelBackdoor
 from PIL import Image
 import copy
 from tqdm import tqdm

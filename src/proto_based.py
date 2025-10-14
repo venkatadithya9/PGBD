@@ -3,7 +3,7 @@ import copy
 
 from datasets.data_loader import get_backdoor_loader
 from datasets.data_loader import get_train_loader, get_test_loader, DatasetBD
-from inversion_torch import PixelBackdoor
+from utils.inversion_torch import PixelBackdoor
 from utils.util import *
 from utils.CD_utils import *
 from models.selector import select_model

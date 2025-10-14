@@ -17,7 +17,6 @@ import cv2
 from PIL import Image
 from torchvision.datasets import DatasetFolder, ImageFolder
 from tqdm import tqdm
-from select_dataset import SelectDataset
 from utils import Normalizer
 from GTSRB import GTSRB
 from ROF import ROF

@@ -1,4 +1,5 @@
 # coding: utf-8
+# Code taken from https://github.com/Gwinhen/PixelBackdoor/tree/main/src and modified for our use case
 
 import numpy as np
 import sys
@@ -6,13 +7,14 @@ import torch
 
 from torchvision import transforms as T
 
+
 class PixelBackdoor:
     def __init__(self,
                  model,                 # subject model for inversion
                  shape=(3, 32, 32),   # input shape
                  num_classes=1000,      # number of classes of subject model
                  steps=100,            # number of steps for inversion
-                 gamma = 10,
+                 gamma=10,
                  batch_size=32,         # batch size in trigger inversion
                  asr_bound=0.9,         # threshold for attack success rate
                  init_cost=1e-3,        # weight on trigger size loss
@@ -20,7 +22,7 @@ class PixelBackdoor:
                  clip_max=1.0,          # maximum pixel value
                  normalize=None,        # input normalization
                  augment=False          # use data augmentation on inputs
-        ):
+                 ):
 
         self.model = model
         self.input_shape = shape
@@ -48,22 +50,22 @@ class PixelBackdoor:
         self.device = torch.device('cuda')
         self.epsilon = 1e-7
         self.patience = 10
-        self.cost_multiplier_up   = 1.5
+        self.cost_multiplier_up = 1.5
         self.cost_multiplier_down = 1.5 ** 1.5
         self.pattern_shape = self.input_shape
 
-    def generate(self, data_loader, target, attack_size=100, seed = 1234, gamma = 10):
+    def generate(self, data_loader, target, attack_size=100, seed=1234, gamma=10):
 
         # store best results
-        pattern_best     = torch.zeros(self.pattern_shape).to(self.device)
+        pattern_best = torch.zeros(self.pattern_shape).to(self.device)
         pattern_pos_best = torch.zeros(self.pattern_shape).to(self.device)
         pattern_neg_best = torch.zeros(self.pattern_shape).to(self.device)
         reg_best = float('inf')
-        pixel_best  = float('inf')
+        pixel_best = float('inf')
 
         # hyper-parameters to dynamically adjust loss weight
         cost = self.init_cost
-        cost_up_counter   = 0
+        cost_up_counter = 0
         cost_down_counter = 0
         np.random.seed(seed)
         self.gamma = gamma
@@ -86,9 +88,9 @@ class PixelBackdoor:
 
         criterion = torch.nn.CrossEntropyLoss(reduction='none')
         optimizer = torch.optim.Adam(
-                        [pattern_pos_tensor, pattern_neg_tensor],
-                        lr=self.lr, betas=(0.5, 0.9)
-                    )
+            [pattern_pos_tensor, pattern_neg_tensor],
+            lr=self.lr, betas=(0.5, 0.9)
+        )
 
         # start generation
         self.model.eval()
@@ -97,13 +99,13 @@ class PixelBackdoor:
             loss_reg_list = []
             loss_list = []
             acc_list = []
-            for x_batch,_ in data_loader:
+            for x_batch, _ in data_loader:
 
                 x_batch = x_batch.to(self.device)
 
                 # map pattern variables to the valid range
-                pattern_pos =   torch.clamp(pattern_pos_tensor * self.clip_max,
-                                            min=0.0, max=self.clip_max)
+                pattern_pos = torch.clamp(pattern_pos_tensor * self.clip_max,
+                                          min=0.0, max=self.clip_max)
                 pattern_neg = - torch.clamp(pattern_neg_tensor * self.clip_max,
                                             min=0.0, max=self.clip_max)
 
@@ -111,7 +113,8 @@ class PixelBackdoor:
                 x_adv = torch.clamp(x_batch + pattern_pos + pattern_neg,
                                     min=0.0, max=self.clip_max)
                 x_adv = self.normalize(x_adv)
-                y_batch = torch.full((x_batch.size(0),), target, dtype=torch.long).to(self.device)
+                y_batch = torch.full((x_batch.size(0),),
+                                     target, dtype=torch.long).to(self.device)
 
                 # use data augmentation
                 if self.augment:
@@ -121,15 +124,16 @@ class PixelBackdoor:
 
                 output = self.model(x_adv)
                 pred = output.argmax(dim=1, keepdim=True)
-                acc = pred.eq(y_batch.view_as(pred)).sum().item() / pred.size(0)
+                acc = pred.eq(y_batch.view_as(
+                    pred)).sum().item() / pred.size(0)
 
-                loss_ce  = criterion(output, y_batch)
+                loss_ce = criterion(output, y_batch)
 
                 # loss for the number of perturbed pixels
-                reg_pos  = torch.max(torch.tanh(pattern_pos_tensor / self.gamma)\
-                                 / (2 - self.epsilon) + 0.5, axis=0)[0]
-                reg_neg  = torch.max(torch.tanh(pattern_neg_tensor / self.gamma)\
-                                / (2 - self.epsilon) + 0.5, axis=0)[0]
+                reg_pos = torch.max(torch.tanh(pattern_pos_tensor / self.gamma)
+                                    / (2 - self.epsilon) + 0.5, axis=0)[0]
+                reg_neg = torch.max(torch.tanh(pattern_neg_tensor / self.gamma)
+                                    / (2 - self.epsilon) + 0.5, axis=0)[0]
                 loss_reg = torch.sum(reg_pos) + torch.sum(reg_neg)
 
                 # total loss
@@ -145,25 +149,25 @@ class PixelBackdoor:
                 acc_list.append(acc)
 
             # calculate average loss and accuracy
-            avg_loss_ce  = np.mean(loss_ce_list)
+            avg_loss_ce = np.mean(loss_ce_list)
             avg_loss_reg = np.mean(loss_reg_list)
-            avg_loss     = np.mean(loss_list)
-            avg_acc      = np.mean(acc_list)
+            avg_loss = np.mean(loss_list)
+            avg_acc = np.mean(acc_list)
 
             # remove small pattern values
             threshold = self.clip_max / 255.0
             pattern_pos_cur = pattern_pos.detach()
             pattern_neg_cur = pattern_neg.detach()
-            pattern_pos_cur[(pattern_pos_cur < threshold)\
-                                & (pattern_pos_cur > -threshold)] = 0
-            pattern_neg_cur[(pattern_neg_cur < threshold)\
-                                & (pattern_neg_cur > -threshold)] = 0
+            pattern_pos_cur[(pattern_pos_cur < threshold)
+                            & (pattern_pos_cur > -threshold)] = 0
+            pattern_neg_cur[(pattern_neg_cur < threshold)
+                            & (pattern_neg_cur > -threshold)] = 0
             pattern_cur = pattern_pos_cur + pattern_neg_cur
 
             # count current number of perturbed pixels
             pixel_cur = np.count_nonzero(
-                            np.sum(np.abs(pattern_cur.cpu().numpy()), axis=0)
-                        )
+                np.sum(np.abs(pattern_cur.cpu().numpy()), axis=0)
+            )
 
             # record the best pattern
             if avg_acc >= self.asr_bound and avg_loss_reg < reg_best\
@@ -206,16 +210,16 @@ class PixelBackdoor:
 
             # periodically print inversion results
             if step % 10 == 0:
-                sys.stdout.write('\rstep: {:3d}, attack: {:.2f}, loss: {:.2f}, '\
-                                 .format(step, avg_acc, avg_loss)\
-                                 + 'ce: {:.2f}, reg: {:.2f}, reg_best: {:.2f}, '\
-                                 .format(avg_loss_ce, avg_loss_reg, reg_best)\
+                sys.stdout.write('\rstep: {:3d}, attack: {:.2f}, loss: {:.2f}, '
+                                 .format(step, avg_acc, avg_loss)
+                                 + 'ce: {:.2f}, reg: {:.2f}, reg_best: {:.2f}, '
+                                 .format(avg_loss_ce, avg_loss_reg, reg_best)
                                  + 'size: {:.0f}  '.format(pixel_best))
                 sys.stdout.flush()
 
         size = np.count_nonzero(pattern_best.abs().sum(0).cpu().numpy())
         sys.stdout.write('\x1b[2K')
-        sys.stdout.write('\rtrigger size of pair {:d}: {:d}\n'\
+        sys.stdout.write('\rtrigger size of pair {:d}: {:d}\n'
                          .format(target, size))
 
         return pattern_best

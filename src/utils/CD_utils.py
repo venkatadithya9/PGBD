@@ -11,7 +11,6 @@ import torch.utils.data as tutils
 from torchvision.models import resnet18, vgg19_bn
 from torchvision.models import resnet50
 
-# from utils_train import *
 from torch.utils.data import DataLoader, Dataset, SubsetRandomSampler, Subset
 from N3F.feature_extractor.lib.baselines import DINO, get_model
 
@@ -1203,14 +1202,14 @@ def save_acts(
             )
             torch.save(
                 acts_pois,
-                f"student_activations_{opt.s_name}_{opt.dataset}_{opt.attack_method}_{bottleneck_name[-2:]}_pois.pt",
+                f"acts/student_activations_{opt.s_name}_{opt.dataset}_{opt.attack_method}_{bottleneck_name[-2:]}_pois.pt",
             )
             if not only_student:
                 dino_acts_pois = get_dino_activations(
                     pois_dino_dataloader, device)
                 torch.save(
                     dino_acts_pois,
-                    f"dino_activations_{opt.s_name}_{opt.dataset}_{opt.attack_method}_{bottleneck_name[-2:]}_pois.pt",
+                    f"acts/dino_activations_{opt.s_name}_{opt.dataset}_{opt.attack_method}_{bottleneck_name[-2:]}_pois.pt",
                 )
 
                 print(

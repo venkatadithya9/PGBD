@@ -15,19 +15,25 @@ def select_model(
     ml_mmdr=False,
     all2all=False,
 ):
-    print(model_name)
+    print("Initializing model with architecture:", model_name)
     if model_name == "WRN-16-1":
-        model = WideResNet(depth=16, num_classes=n_classes, widen_factor=1, dropRate=0)
+        model = WideResNet(depth=16, num_classes=n_classes,
+                           widen_factor=1, dropRate=0)
     elif model_name == "WRN-16-2":
-        model = WideResNet(depth=16, num_classes=n_classes, widen_factor=2, dropRate=0)
+        model = WideResNet(depth=16, num_classes=n_classes,
+                           widen_factor=2, dropRate=0)
     elif model_name == "WRN-40-1":
-        model = WideResNet(depth=40, num_classes=n_classes, widen_factor=1, dropRate=0)
+        model = WideResNet(depth=40, num_classes=n_classes,
+                           widen_factor=1, dropRate=0)
     elif model_name == "WRN-40-2":
-        model = WideResNet(depth=40, num_classes=n_classes, widen_factor=2, dropRate=0)
+        model = WideResNet(depth=40, num_classes=n_classes,
+                           widen_factor=2, dropRate=0)
     elif model_name == "WRN-10-2":
-        model = WideResNet(depth=10, num_classes=n_classes, widen_factor=2, dropRate=0)
+        model = WideResNet(depth=10, num_classes=n_classes,
+                           widen_factor=2, dropRate=0)
     elif model_name == "WRN-10-1":
-        model = WideResNet(depth=10, num_classes=n_classes, widen_factor=1, dropRate=0)
+        model = WideResNet(depth=10, num_classes=n_classes,
+                           widen_factor=1, dropRate=0)
     elif model_name == "ResNet18":
         model = ResNet18(num_classes=n_classes)
     elif model_name == "resnet50":
@@ -58,7 +64,8 @@ def select_model(
             checkpoint = torch.load(path, map_location="cpu")
             print(checkpoint.keys())
         if all2all:
-            path = model_path.split(".p")[0] + "_all2all.p" + model_path.split(".p")[1]
+            path = model_path.split(
+                ".p")[0] + "_all2all.p" + model_path.split(".p")[1]
             print("Using all2all model", path)
             checkpoint = torch.load(path, map_location="cpu")
         if (

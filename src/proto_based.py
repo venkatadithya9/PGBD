@@ -5,9 +5,8 @@ from data_loader import get_backdoor_loader
 from data_loader import get_train_loader, get_test_loader, DatasetBD
 from inversion_torch import PixelBackdoor
 from utils.util import *
-from utils_train import *
-from CD_utils import *
-from models.selector import *
+from utils.CD_utils import *
+from models.selector import select_model
 from config import (
     get_arguments,
     get_arguments_1,
@@ -79,6 +78,8 @@ def attack_with_trigger(args, model, train_loader, target_label, pattern):
         asr = correct / total
         print(correct / total)
     return asr
+
+# Using trigger synthesis from https://github.com/Gwinhen/PixelBackdoor/tree/main/src (inversion_torch.py)
 
 
 def inversion(args, model, target_label, train_loader, gamma=10, seed=1234):
@@ -507,16 +508,6 @@ def get_proto(c, proto_dic):
     return class_proto
 
 
-def get_proto(c, proto_dic):
-    cluster_keys = list(proto_dic[c].keys())
-    class_proto = torch.zeros_like(torch.tensor(proto_dic[c][cluster_keys[0]]))
-    for k in cluster_keys:
-        class_proto += proto_dic[c][k]
-    class_proto /= len(cluster_keys)
-    # class_proto.requires_grad = True
-    return class_proto
-
-
 def get_cav(opt, protos, pairs_lis, protos_pois=None):
     cav_dic = dict()
     cav_dic_agg = {}
@@ -529,18 +520,17 @@ def get_cav(opt, protos, pairs_lis, protos_pois=None):
         if protos_pois != None:
             class_protos_pois = dict()
             proto_dic_pois = protos_pois[bneck]
-        dino_acts_path = f"dino_activations_{opt.s_name}_{opt.dataset}_{opt.attack_method}_{bneck[-2:]}"
-        student_acts_path = f"student_activations_{opt.s_name}_{opt.dataset}_{opt.attack_method}_{bneck[-2:]}"
+        dino_acts_path = f"acts/dino_activations_{opt.s_name}_{opt.dataset}_{opt.attack_method}_{bneck[-2:]}"
+        student_acts_path = f"acts/student_activations_{opt.s_name}_{opt.dataset}_{opt.attack_method}_{bneck[-2:]}"
         upconv_m, downconv_m = map_activation_spaces(
             dino_acts_path, student_acts_path, pairs_lis, 150, opt
         )
         upconvs[bneck] = upconv_m
         downconvs[bneck] = downconv_m
         for c in range(opt.num_class):
-            # print(opt.distill)
             if (
                 opt.distill == True and opt.dino_acts == False
-            ):  # Because we don't need MM in both cases
+            ):  # Because we don't need mapping module in both cases
                 class_protos[c] = upconv_m(get_proto(c, proto_dic).cuda())
                 if protos_pois:
                     class_protos_pois[c] = upconv_m(
@@ -591,8 +581,8 @@ def get_cav_delta(
         if protos_pois:
             class_protos_pois = dict()
             proto_dic_pois = protos_pois[bneck]
-        dino_acts_path = f"dino_activations_{opt.s_name}_{opt.dataset}_{opt.attack_method}_{bneck[-2:]}"
-        student_acts_path = f"student_activations_{opt.s_name}_{opt.dataset}_{opt.attack_method}_{bneck[-2:]}"
+        dino_acts_path = f"acts/dino_activations_{opt.s_name}_{opt.dataset}_{opt.attack_method}_{bneck[-2:]}"
+        student_acts_path = f"acts/student_activations_{opt.s_name}_{opt.dataset}_{opt.attack_method}_{bneck[-2:]}"
         upconv_m, downconv_m = map_activation_spaces(
             dino_acts_path, student_acts_path, pairs_lis, 150, opt
         )
@@ -693,9 +683,11 @@ def pgbd(opt):
 
     # Check if activation files already exist, if not save them before starting sanitization
     is_acts_saved = {bneck: False for bneck in opt.bottlenecks}
+    if os.path.exists("acts/") == False:
+        os.mkdir("acts/")
     for bneck in opt.bottlenecks:
-        dino_acts_path = f"dino_activations_{opt.s_name}_{opt.dataset}_{opt.attack_method}_{bneck[-2:]}"
-        student_acts_path = f"student_activations_{opt.s_name}_{opt.dataset}_{opt.attack_method}_{bneck[-2:]}"
+        dino_acts_path = f"acts/dino_activations_{opt.s_name}_{opt.dataset}_{opt.attack_method}_{bneck[-2:]}"
+        student_acts_path = f"acts/student_activations_{opt.s_name}_{opt.dataset}_{opt.attack_method}_{bneck[-2:]}"
         if os.path.exists(dino_acts_path) and os.path.exists(student_acts_path):
             print(
                 f"Activation files for {bneck} already exist! Loading them directly...")

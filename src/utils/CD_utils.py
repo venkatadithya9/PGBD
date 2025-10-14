@@ -625,8 +625,8 @@ def save_classwise_protos_dino_mm(
     # with torch.no_grad():
     for bottleneck_name in bottlenecks:
         if len(upconvs) == 0 or len(downconvs) == 0:
-            dino_acts_path = f"dino_activations_{opt.s_name}_{opt.dataset}_{opt.attack_method}_{bottleneck_name[-2:]}"
-            student_acts_path = f"student_activations_{opt.s_name}_{opt.dataset}_{opt.attack_method}_{bottleneck_name[-2:]}"
+            dino_acts_path = f"acts/dino_activations_{opt.s_name}_{opt.dataset}_{opt.attack_method}_{bottleneck_name[-2:]}"
+            student_acts_path = f"acts/student_activations_{opt.s_name}_{opt.dataset}_{opt.attack_method}_{bottleneck_name[-2:]}"
             upconv_m, downconv_m = map_activation_spaces(
                 dino_acts_path, student_acts_path, pairs_lis, 150, opt
             )
@@ -810,8 +810,8 @@ def save_classwise_protos_dino_mm_delta(
     # with torch.no_grad():
     for bottleneck_name in bottlenecks:
         if len(upconvs) == 0 or len(downconvs) == 0:
-            dino_acts_path = f"dino_activations_{opt.s_name}_{opt.dataset}_{opt.attack_method}_{bottleneck_name[-2:]}"
-            student_acts_path = f"student_activations_{opt.s_name}_{opt.dataset}_{opt.attack_method}_{bottleneck_name[-2:]}"
+            dino_acts_path = f"acts/dino_activations_{opt.s_name}_{opt.dataset}_{opt.attack_method}_{bottleneck_name[-2:]}"
+            student_acts_path = f"acts/student_activations_{opt.s_name}_{opt.dataset}_{opt.attack_method}_{bottleneck_name[-2:]}"
             upconv_m, downconv_m = map_activation_spaces(
                 dino_acts_path, student_acts_path, pairs_lis, 150, opt
             )
@@ -1178,7 +1178,7 @@ def save_acts(
             print("ACTS SHAPE: ", acts_clean.shape)
             torch.save(
                 acts_clean,
-                f"student_activations_{opt.s_name}_{opt.dataset}_{opt.attack_method}_{bottleneck_name[-2:]}_clean{i}.pt",
+                f"acts/student_activations_{opt.s_name}_{opt.dataset}_{opt.attack_method}_{bottleneck_name[-2:]}_clean{i}.pt",
             )
             if not only_student:
                 dino_acts_clean = get_dino_activations(
@@ -1187,7 +1187,7 @@ def save_acts(
                 pairs_lis[f"clean{i}"] = [("", "")]
                 torch.save(
                     dino_acts_clean,
-                    f"dino_activations_{opt.s_name}_{opt.dataset}_{opt.attack_method}_{bottleneck_name[-2:]}_clean{i}.pt",
+                    f"acts/dino_activations_{opt.s_name}_{opt.dataset}_{opt.attack_method}_{bottleneck_name[-2:]}_clean{i}.pt",
                 )
 
         if pois_set:
@@ -1367,11 +1367,11 @@ def save_synthetic_acts(model, opt, train_data, train_dino_data, load_existing=F
 
             torch.save(
                 acts_clean,
-                f"student_activations_{opt.s_name}_{opt.dataset}_{opt.attack_method}_{bottleneck_name[-2:]}_trig_clean{i}.pt",
+                f"acts/student_activations_{opt.s_name}_{opt.dataset}_{opt.attack_method}_{bottleneck_name[-2:]}_trig_clean{i}.pt",
             )
             torch.save(
                 dino_acts_clean,
-                f"dino_activations_{opt.s_name}_{opt.dataset}_{opt.attack_method}_{bottleneck_name[-2:]}_trig_clean{i}.pt",
+                f"acts/dino_activations_{opt.s_name}_{opt.dataset}_{opt.attack_method}_{bottleneck_name[-2:]}_trig_clean{i}.pt",
             )
 
         acts_pois, _ = get_activations(
@@ -1381,58 +1381,9 @@ def save_synthetic_acts(model, opt, train_data, train_dino_data, load_existing=F
 
         torch.save(
             acts_pois,
-            f"student_activations_{opt.s_name}_{opt.dataset}_{opt.attack_method}_{bottleneck_name[-2:]}_trig.pt",
+            f"acts/student_activations_{opt.s_name}_{opt.dataset}_{opt.attack_method}_{bottleneck_name[-2:]}_trig.pt",
         )
         torch.save(
             dino_acts_pois,
-            f"dino_activations_{opt.s_name}_{opt.dataset}_{opt.attack_method}_{bottleneck_name[-2:]}_trig.pt",
+            f"acts/dino_activations_{opt.s_name}_{opt.dataset}_{opt.attack_method}_{bottleneck_name[-2:]}_trig.pt",
         )
-
-
-"""
-    indices = [set() for i in range(num_classes)]
-    for ind in range(len(train_data)): # distributing all clean data classwise
-        indices[train_data[ind][1]].add(ind)
-    
-    clean_inds_lis = []
-    balanced_act_inds = []
-    for i in range(num_csets):
-        balanced_act_inds = []
-        for ind in range(num_classes):
-            sel_list = set()
-            sel_list.update(np.random.choice(list(indices[ind]), size = int(cset_len//num_classes), replace = False).tolist())
-            indices[ind] = indices[ind] - sel_list
-            balanced_act_inds = balanced_act_inds + list(sel_list)
-        clean_inds_lis.append(balanced_act_inds)
-    
-    balanced_clean_inds = balanced_act_inds
-    clean_set = [Subset(train_data, clean_inds_lis[i]) for i in range(num_csets)]
-    pois_set = student_trig
-
-    cset = [clean_set, pois_set]
-    cset_path = "./csets/" + opt.attack_method+ "_" + opt.dataset + "_trigger"
-    with open(cset_path + ".pkl", "wb") as f:
-        pkl.dump(cset, f)
-    named_layers = dict(model.named_modules())
-    # student_clean_acts = []
-    # dino_clean_acts = []
-    for bottleneck_name in bottlenecks:
-        clean_set, pois_set = cset
-        for i in range(num_csets):
-            clean_dataloader = DataLoader(clean_set[i], batch_size = 1)
-            clean_dino_dataloader = DataLoader(train_dino_data, sampler = SubsetRandomSampler(clean_inds_lis[i]), batch_size = 1)
-            acts_clean, _ = get_activations(model, clean_dataloader, named_layers, bottleneck_name, device)
-            dino_acts_clean = get_dino_activations(clean_dino_dataloader, device)
-
-            torch.save(acts_clean, f"student_activations_{opt.s_name}_{opt.dataset}_{opt.attack_method}_{bottleneck_name[-2:]}_trig_clean{i}.pt")
-            torch.save(dino_acts_clean, f"dino_activations_{opt.s_name}_{opt.dataset}_{opt.attack_method}_{bottleneck_name[-2:]}_trig_clean{i}.pt")
-        print(len(pois_dataloader), "*********** ------------ ******")
-        acts_pois, _ = get_activations(model, pois_dataloader, named_layers, bottleneck_name, device)
-        dino_acts_pois = get_dino_activations(pois_dino_dataloader, device)
-
-        torch.save(acts_pois, f"student_activations_{opt.s_name}_{opt.dataset}_{opt.attack_method}_{bottleneck_name[-2:]}_trig.pt")
-        torch.save(dino_acts_pois, f"dino_activations_{opt.s_name}_{opt.dataset}_{opt.attack_method}_{bottleneck_name[-2:]}_trig.pt")
-
-
-        print("Pois vs clean data done, student_shape and dino_shape:", acts_clean.shape, dino_acts_clean.shape)
-"""

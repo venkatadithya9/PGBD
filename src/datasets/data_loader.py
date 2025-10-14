@@ -18,8 +18,8 @@ from PIL import Image
 from torchvision.datasets import DatasetFolder, ImageFolder
 from tqdm import tqdm
 from utils import Normalizer
-from GTSRB import GTSRB
-from ROF import ROF
+from datasets.GTSRB import GTSRB
+from datasets.ROF import ROF
 from utils import Denormalizer, Normalizer
 import pickle as pkl
 

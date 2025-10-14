@@ -1,8 +1,8 @@
 import random
 import copy
 
-from data_loader import get_backdoor_loader
-from data_loader import get_train_loader, get_test_loader, DatasetBD
+from datasets.data_loader import get_backdoor_loader
+from datasets.data_loader import get_train_loader, get_test_loader, DatasetBD
 from inversion_torch import PixelBackdoor
 from utils.util import *
 from utils.CD_utils import *
@@ -28,7 +28,7 @@ from utils import Normalizer, Denormalizer
 import argparse
 from argparse import ArgumentParser
 import wandb
-from ROF import ROF
+from datasets.ROF import ROF
 
 
 def get_norm(args):

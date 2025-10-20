@@ -1,3 +1,7 @@
+'''
+Download the dataset from here: https://drive.google.com/drive/folders/1e_FiGx0ShUhnE5X_GhVfxxgsh46DgCeb?usp=sharing 
+'''
+
 from torchvision.datasets import ImageFolder
 import torchvision.transforms as tfs
 from torch.utils.data import (

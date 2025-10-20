@@ -738,7 +738,7 @@ def pgbd(opt):
                 tfs.RandomHorizontalFlip(),
             ]
         )
-        semantic = ROF(pratio=opt.inject_portion)
+        semantic = ROF(pratio=opt.inject_portion, base_pth="./data/ROF/clean_sunglasses", base_pth_pois="./data/ROF/sunglasses")
         if opt.trigger_type == "semanticMaskTrigger":
             test_transforms = tfs.Compose(
                 [
@@ -753,8 +753,8 @@ def pgbd(opt):
             )
             semantic = ROF(
                 pratio=opt.inject_portion,
-                base_pth="./data/ROF/dataset_final/clean",
-                base_pth_pois="./data/ROF/dataset_final/masked",
+                base_pth="./data/ROF/clean",
+                base_pth_pois="./data/ROF/masked",
             )
         elif opt.trigger_type == "semanticTattooTrigger":
             test_transforms = tfs.Compose(
@@ -770,7 +770,7 @@ def pgbd(opt):
             )
             semantic = ROF(
                 pratio=opt.inject_portion,
-                base_pth="./data/ROF/clean_tattoo",
+                base_pth="./data/ROF/clean",
                 base_pth_pois="./data/ROF/tattoo",
             )
 

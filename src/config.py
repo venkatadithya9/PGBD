@@ -137,7 +137,7 @@ def get_arguments():
                         action='store_false', help='Use concept loss')
     parser.add_argument('--loss_type',  type=str,
                         default="L1_cos", help='Type of concept loss')
-    parser.add_argument('--wtcav',  type=float, default=10,
+    parser.add_argument('--wtpav',  type=float, default=10,
                         help='Weight for concept loss')
     parser.add_argument('--loss_interval',  type=int, default=1,
                         help='Interval between applying concept loss')
@@ -149,7 +149,7 @@ def get_arguments():
                         help='Use avg of all inter class cav or not')
     parser.add_argument('--delta', type=float, default=0.1,
                         help='Weight of prev iteration proto and cav')
-    parser.add_argument('--update_cav',  action='store_true',
+    parser.add_argument('--update_pav',  action='store_true',
                         help='Update cav or not')
     parser.add_argument('--weight_pav',  action='store_true',
                         help='Update cav  with weighting or not')
@@ -266,7 +266,7 @@ def get_arguments_1():
                         action='store_false', help='Use concept loss')
     parser.add_argument('--loss_type',  type=str,
                         default="L1_cos", help='Type of concept loss')
-    parser.add_argument('--wtcav',  type=float, default=10,
+    parser.add_argument('--wtpav',  type=float, default=10,
                         help='Weight for concept loss')
     parser.add_argument('--loss_interval',  type=int, default=1,
                         help='Interval between applying concept loss')
@@ -278,7 +278,7 @@ def get_arguments_1():
                         help='Use avg of all inter class cav or not')
     parser.add_argument('--delta', type=float, default=0.1,
                         help='Weight of prev iteration proto and cav')
-    parser.add_argument('--update_cav',  action='store_true',
+    parser.add_argument('--update_pav',  action='store_true',
                         help='Update cav or not')
     parser.add_argument('--weight_pav',  action='store_true',
                         help='Update cav  with weighting or not')
@@ -397,7 +397,7 @@ def get_arguments_2():
                         action='store_false', help='Use concept loss')
     parser.add_argument('--loss_type',  type=str,
                         default="L1_cos", help='Type of concept loss')
-    parser.add_argument('--wtcav',  type=float, default=10,
+    parser.add_argument('--wtpav',  type=float, default=10,
                         help='Weight for concept loss')
     parser.add_argument('--loss_interval',  type=int, default=1,
                         help='Interval between applying concept loss')
@@ -409,7 +409,7 @@ def get_arguments_2():
                         help='Use avg of all inter class cav or not')
     parser.add_argument('--delta', type=float, default=0.9,
                         help='Weight of prev iteration proto and cav')
-    parser.add_argument('--update_cav',  action='store_true',
+    parser.add_argument('--update_pav',  action='store_true',
                         help='Update cav or not')
     parser.add_argument('--weight_pav',  action='store_true',
                         help='Update cav  with weighting or not')
@@ -528,7 +528,7 @@ def get_arguments_2_convnext():
                         action='store_false', help='Use concept loss')
     parser.add_argument('--loss_type',  type=str,
                         default="L1_cos", help='Type of concept loss')
-    parser.add_argument('--wtcav',  type=float, default=10,
+    parser.add_argument('--wtpav',  type=float, default=10,
                         help='Weight for concept loss')
     parser.add_argument('--loss_interval',  type=int, default=1,
                         help='Interval between applying concept loss')
@@ -540,7 +540,7 @@ def get_arguments_2_convnext():
                         help='Use avg of all inter class cav or not')
     parser.add_argument('--delta', type=float, default=0.9,
                         help='Weight of prev iteration proto and cav')
-    parser.add_argument('--update_cav',  action='store_true',
+    parser.add_argument('--update_pav',  action='store_true',
                         help='Update cav or not')
     parser.add_argument('--weight_pav',  action='store_true',
                         help='Updatecav  with weighting or nott')
@@ -659,7 +659,7 @@ def get_arguments_2_preact():
                         action='store_false', help='Use concept loss')
     parser.add_argument('--loss_type',  type=str,
                         default="L1_cos", help='Type of concept loss')
-    parser.add_argument('--wtcav',  type=float, default=10,
+    parser.add_argument('--wtpav',  type=float, default=10,
                         help='Weight for concept loss')
     parser.add_argument('--loss_interval',  type=int, default=1,
                         help='Interval between applying concept loss')
@@ -671,7 +671,7 @@ def get_arguments_2_preact():
                         help='Use avg of all inter class cav or not')
     parser.add_argument('--delta', type=float, default=0.75,
                         help='Weight of prev iteration proto and cav')
-    parser.add_argument('--update_cav',  action='store_true',
+    parser.add_argument('--update_pav',  action='store_true',
                         help='Update cav or not')
     parser.add_argument('--weight_pav',  action='store_true',
                         help='Updatecav  with weighting or nott')
@@ -790,7 +790,7 @@ def get_arguments_2_preact_tiny():
                         action='store_false', help='Use concept loss')
     parser.add_argument('--loss_type',  type=str,
                         default="L1_cos", help='Type of concept loss')
-    parser.add_argument('--wtcav',  type=float, default=10,
+    parser.add_argument('--wtpav',  type=float, default=10,
                         help='Weight for concept loss')
     parser.add_argument('--loss_interval',  type=int, default=1,
                         help='Interval between applying concept loss')
@@ -802,7 +802,7 @@ def get_arguments_2_preact_tiny():
                         help='Use avg of all inter class cav or not')
     parser.add_argument('--delta', type=float, default=0.75,
                         help='Weight of prev iteration proto and cav')
-    parser.add_argument('--update_cav',  action='store_true',
+    parser.add_argument('--update_pav',  action='store_true',
                         help='Update cav or not')
     parser.add_argument('--weight_pav',  action='store_true',
                         help='Updatecav  with weighting or nott')
@@ -921,7 +921,7 @@ def get_arguments_semantic_preact():
                         action='store_false', help='Use concept loss')
     parser.add_argument('--loss_type',  type=str,
                         default="L1_cos", help='Type of concept loss')
-    parser.add_argument('--wtcav',  type=float, default=10,
+    parser.add_argument('--wtpav',  type=float, default=10,
                         help='Weight for concept loss')
     parser.add_argument('--loss_interval',  type=int, default=1,
                         help='Interval between applying concept loss')
@@ -933,7 +933,7 @@ def get_arguments_semantic_preact():
                         help='Use avg of all inter class cav or not')
     parser.add_argument('--delta', type=float, default=0.75,
                         help='Weight of prev iteration proto and cav')
-    parser.add_argument('--update_cav',  action='store_true',
+    parser.add_argument('--update_pav',  action='store_true',
                         help='Update cav or not')
     parser.add_argument('--weight_pav',  action='store_true',
                         help='Updatecav  with weighting or nott')
@@ -1052,7 +1052,7 @@ def get_arguments_2_preact34():
                         action='store_false', help='Use concept loss')
     parser.add_argument('--loss_type',  type=str,
                         default="L1_cos", help='Type of concept loss')
-    parser.add_argument('--wtcav',  type=float, default=10,
+    parser.add_argument('--wtpav',  type=float, default=10,
                         help='Weight for concept loss')
     parser.add_argument('--loss_interval',  type=int, default=1,
                         help='Interval between applying concept loss')
@@ -1064,7 +1064,7 @@ def get_arguments_2_preact34():
                         help='Use avg of all inter class cav or not')
     parser.add_argument('--delta', type=float, default=0.9,
                         help='Weight of prev iteration proto and cav')
-    parser.add_argument('--update_cav',  action='store_true',
+    parser.add_argument('--update_pav',  action='store_true',
                         help='Update cav or not')
     parser.add_argument('--weight_pav',  action='store_true',
                         help='Updatecav  with weighting or nott')
@@ -1183,7 +1183,7 @@ def get_arguments_3():
                         action='store_false', help='Use concept loss')
     parser.add_argument('--loss_type',  type=str,
                         default="L1_cos", help='Type of concept loss')
-    parser.add_argument('--wtcav',  type=float, default=10,
+    parser.add_argument('--wtpav',  type=float, default=10,
                         help='Weight for concept loss')
     parser.add_argument('--loss_interval',  type=int, default=1,
                         help='Interval between applying concept loss')
@@ -1195,7 +1195,7 @@ def get_arguments_3():
                         help='Use avg of all inter class cav or not')
     parser.add_argument('--delta', type=float, default=0.75,
                         help='Weight of prev iteration proto and cav')
-    parser.add_argument('--update_cav',  action='store_true',
+    parser.add_argument('--update_pav',  action='store_true',
                         help='Update cav or not')
     parser.add_argument('--weight_pav',  action='store_true',
                         help='Updatecav  with weighting or nott')
@@ -1314,7 +1314,7 @@ def get_arguments_3_preact():
                         action='store_false', help='Use concept loss')
     parser.add_argument('--loss_type',  type=str,
                         default="L1_cos", help='Type of concept loss')
-    parser.add_argument('--wtcav',  type=float, default=10,
+    parser.add_argument('--wtpav',  type=float, default=10,
                         help='Weight for concept loss')
     parser.add_argument('--loss_interval',  type=int, default=1,
                         help='Interval between applying concept loss')
@@ -1326,7 +1326,7 @@ def get_arguments_3_preact():
                         help='Use avg of all inter class cav or not')
     parser.add_argument('--delta', type=float, default=0.75,
                         help='Weight of prev iteration proto and cav')
-    parser.add_argument('--update_cav',  action='store_true',
+    parser.add_argument('--update_pav',  action='store_true',
                         help='Update cav or not')
     parser.add_argument('--weight_pav',  action='store_true',
                         help='Updatecav  with weighting or nott')
@@ -1445,7 +1445,7 @@ def get_arguments_4_preact():
                         action='store_false', help='Use concept loss')
     parser.add_argument('--loss_type',  type=str,
                         default="L1_cos", help='Type of concept loss')
-    parser.add_argument('--wtcav',  type=float, default=10,
+    parser.add_argument('--wtpav',  type=float, default=10,
                         help='Weight for concept loss')
     parser.add_argument('--loss_interval',  type=int, default=1,
                         help='Interval between applying concept loss')
@@ -1457,7 +1457,7 @@ def get_arguments_4_preact():
                         help='Use avg of all inter class cav or not')
     parser.add_argument('--delta', type=float, default=0.75,
                         help='Weight of prev iteration proto and cav')
-    parser.add_argument('--update_cav',  action='store_true',
+    parser.add_argument('--update_pav',  action='store_true',
                         help='Update cav or not')
     parser.add_argument('--weight_pav',  action='store_true',
                         help='Update cav  with weighting or not')
@@ -1576,7 +1576,7 @@ def get_arguments_signal_preact():
                         action='store_false', help='Use concept loss')
     parser.add_argument('--loss_type',  type=str,
                         default="L1_cos", help='Type of concept loss')
-    parser.add_argument('--wtcav',  type=float, default=10,
+    parser.add_argument('--wtpav',  type=float, default=10,
                         help='Weight for concept loss')
     parser.add_argument('--loss_interval',  type=int, default=1,
                         help='Interval between applying concept loss')
@@ -1588,7 +1588,7 @@ def get_arguments_signal_preact():
                         help='Use avg of all inter class cav or not')
     parser.add_argument('--delta', type=float, default=0.75,
                         help='Weight of prev iteration proto and cav')
-    parser.add_argument('--update_cav', action='store_true',
+    parser.add_argument('--update_pav', action='store_true',
                         help='Update cav or not')
     parser.add_argument('--weight_pav',  action='store_true',
                         help='Update cav  with weighting or not')
@@ -1707,7 +1707,7 @@ def get_arguments_lc_preact():
                         action='store_false', help='Use concept loss')
     parser.add_argument('--loss_type',  type=str,
                         default="L1_cos", help='Type of concept loss')
-    parser.add_argument('--wtcav',  type=float, default=10,
+    parser.add_argument('--wtpav',  type=float, default=10,
                         help='Weight for concept loss')
     parser.add_argument('--loss_interval',  type=int, default=1,
                         help='Interval between applying concept loss')
@@ -1719,7 +1719,7 @@ def get_arguments_lc_preact():
                         help='Use avg of all inter class cav or not')
     parser.add_argument('--delta', type=float, default=0.75,
                         help='Weight of prev iteration proto and cav')
-    parser.add_argument('--update_cav',  action='store_true',
+    parser.add_argument('--update_pav',  action='store_true',
                         help='Update cav or not')
     parser.add_argument('--weight_pav',  action='store_true',
                         help='Update cav  with weighting or not')
@@ -1838,7 +1838,7 @@ def get_arguments_wanet_preact():
                         action='store_false', help='Use concept loss')
     parser.add_argument('--loss_type',  type=str,
                         default="L1_cos", help='Type of concept loss')
-    parser.add_argument('--wtcav',  type=float, default=10,
+    parser.add_argument('--wtpav',  type=float, default=10,
                         help='Weight for concept loss')
     parser.add_argument('--loss_interval',  type=int, default=1,
                         help='Interval between applying concept loss')
@@ -1850,7 +1850,7 @@ def get_arguments_wanet_preact():
                         help='Use avg of all inter class cav or not')
     parser.add_argument('--delta', type=float, default=0.75,
                         help='Weight of prev iteration proto and cav')
-    parser.add_argument('--update_cav',  action='store_true',
+    parser.add_argument('--update_pav',  action='store_true',
                         help='Update cav or not')
     parser.add_argument('--weight_pav',  action='store_true',
                         help='Update cav  with weighting or not')
@@ -1969,7 +1969,7 @@ def get_arguments_signal():
                         action='store_false', help='Use concept loss')
     parser.add_argument('--loss_type',  type=str,
                         default="L1_cos", help='Type of concept loss')
-    parser.add_argument('--wtcav',  type=float, default=10,
+    parser.add_argument('--wtpav',  type=float, default=10,
                         help='Weight for concept loss')
     parser.add_argument('--loss_interval',  type=int, default=1,
                         help='Interval between applying concept loss')
@@ -1981,7 +1981,7 @@ def get_arguments_signal():
                         help='Use avg of all inter class cav or not')
     parser.add_argument('--delta', type=float, default=0.1,
                         help='Weight of prev iteration proto and cav')
-    parser.add_argument('--update_cav',  action='store_true',
+    parser.add_argument('--update_pav',  action='store_true',
                         help='Update cav or not')
     parser.add_argument('--weight_pav',  action='store_true',
                         help='Updatecav  with weighting or nott')

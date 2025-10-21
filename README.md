@@ -23,7 +23,11 @@ The `src/proto_based.py` script provides different options:
 - `--attack_method`: str, name of the attack against which defene is to be performed. 
 - `--trigger_type`: str, type/subtype of triggers if everyone comes in with similar identities.
 
+To run semantic attack based experiments, first download the dataset from [here](https://drive.google.com/drive/folders/1e_FiGx0ShUhnE5X_GhVfxxgsh46DgCeb) and place the dataset at the path `src/data/ROF/`.
 
+
+## TODOs
+1. Remove attack specific evaluation code from `proto_based.py`.
 
 ## Acknowledgements
 * We obtain all baseline weights from [BackdoorBench](https://github.com/SCLBD/BackdoorBench).

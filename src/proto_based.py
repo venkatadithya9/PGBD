@@ -258,7 +258,7 @@ def train_step_pgbd(
     pairs_lis,
     protos,
     protos_pois,
-    wtcavs,
+    wtpavs,
     cav_dic,
     cav_dic_class,
 ):
@@ -274,7 +274,7 @@ def train_step_pgbd(
         if (
             opt.update_gap_iter != -1
             and cur_iter % opt.update_gap_iter == 0
-            and opt.update_cav
+            and opt.update_pav
         ):
             if opt.weight_proto:
                 protos = save_classwise_protos_delta(
@@ -469,7 +469,7 @@ def train_step_pgbd(
                         loss_ = -tcav_loss
 
             if affect == False:
-                loss_ = wtcavs[bneck] * loss_
+                loss_ = wtpavs[bneck] * loss_
             loss_dic[bneck] = loss_
 
         loss_final = 0
@@ -832,10 +832,10 @@ def pgbd(opt):
     else:
         criterionCls = nn.CrossEntropyLoss()
 
-    wtcav = opt.wtcav
-    wtcavs = {}
+    wtpav = opt.wtpav
+    wtpavs = {}
     for i in range(len(opt.bottlenecks)):
-        wtcavs[opt.bottlenecks[i]] = wtcav / (len(opt.bottlenecks) - i)
+        wtpavs[opt.bottlenecks[i]] = wtpav / (len(opt.bottlenecks) - i)
     if opt.use_wandb:
         wandb.init(
             project="PGBD",
@@ -845,14 +845,14 @@ def pgbd(opt):
                 "dataset": opt.dataset,
                 "bottleneck_name": opt.bottlenecks,
                 "knn_k": opt.knn_k,
-                "wtcav": wtcav,
+                "wtpav": wtpav,
                 "cset_type": opt.cset_type,
                 "epochs": opt.epochs,
                 "loss_interval": opt.loss_interval,
                 "eval_mode": opt.eval_mode,
                 "loss_type": opt.loss_type,
                 "agg_cav": opt.agg_cav,
-                "update_cav": opt.update_cav,
+                "update_pav": opt.update_pav,
                 "weight_pav": opt.weight_pav,
                 "weight_proto": opt.weight_proto,
                 "update_gap": opt.update_gap,
@@ -861,7 +861,7 @@ def pgbd(opt):
                 "sched_delta": opt.sched_delta,
             },
         )
-        wandb.run.name = f"PGBD_{opt.s_name}_{opt.attack_method}_{opt.dataset}_wtcav_{wtcav}_k_{opt.knn_k}_e_{opt.epochs}"
+        wandb.run.name = f"PGBD_{opt.s_name}_{opt.attack_method}_{opt.dataset}_wtpav_{wtpav}_k_{opt.knn_k}_e_{opt.epochs}"
 
     original_target = opt.target_label
     if opt.no_target:
@@ -889,7 +889,7 @@ def pgbd(opt):
             opt.target_label = (original_target + epoch) % opt.num_class
 
         train_loader = DataLoader(train_data, batch_size=16, shuffle=True)
-        if opt.update_cav and epoch % opt.update_gap == 0 and opt.update_gap_iter == -1:
+        if opt.update_pav and epoch % opt.update_gap == 0 and opt.update_gap_iter == -1:
             # Do weighted update step for prototypes and pavs
             if opt.weight_proto:
                 protos = save_classwise_protos_delta(
@@ -931,7 +931,7 @@ def pgbd(opt):
             pairs_lis,
             protos,
             protos_pois,
-            wtcavs,
+            wtpavs,
             cav_dic_agg,
             cav_dic,
         )
@@ -957,7 +957,7 @@ if __name__ == "__main__":
     # opt = get_arguments().parse_args()
     # opt = get_arguments_1().parse_args()
     opt = get_arguments_2_preact().parse_args()
-    # print(opt.s_name, opt.model, opt.attack_method, ", wtcav: ", opt.wtcav, ", delta:   ", opt.delta)
+    # print(opt.s_name, opt.model, opt.attack_method, ", wtpav: ", opt.wtpav, ", delta:   ", opt.delta)
     # print(opt.epochs, opt.delta)
     # exit()
     random.seed(opt.seed)  # torch transforms use this seed
